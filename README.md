@@ -1,2 +1,2 @@
-parallel-allocator
+ParallelAllocator
 ==================
