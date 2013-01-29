@@ -68,6 +68,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Allocates the specified amount of bytes from virtual memory.
     // Tries to allocate the memory from the specified NUMA node.
     static void* AllocateNuma(size_t size, unsigned int prefferedNode) {
@@ -87,6 +88,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Deallocates the data found at the given address.
     static void Deallocate(void* address) {
         Statistics::BlockDeallocated();
@@ -98,6 +100,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Deallocates the data found at the given address (NUMA version).
     static void DeallocateNuma(void* address, unsigned int prefferedNode) {
         Statistics::BlockDeallocated();
@@ -109,6 +112,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned int GetPageSize() {
 #if defined(PLATFORM_WINDOWS)
         SYSTEM_INFO si;
@@ -119,6 +123,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static bool IsNumaSupported() {
 #if defined(PLATFORM_WINDOWS)
         OSVERSIONINFOEX info;
@@ -140,6 +145,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static bool IsNumaAllocationSupported() {
 #if defined(PLATFORM_WINDOWS)
         OSVERSIONINFOEX info;
@@ -152,6 +158,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static void InitializeNumaAllocation() {
 #if defined(PLATFORM_WINDOWS)
         if(IsNumaAllocationSupported()) {
@@ -165,6 +172,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static void FullBarrier() {
 #if defined(PLATFORM_WINDOWS)
     #if defined(PLATFORM_64)
@@ -177,6 +185,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     template <class T>
     static T ReadValue(volatile T* address) {
         T value = *address;
@@ -184,12 +193,14 @@ public:
         return value;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     template <class T>
     static void WriteValue(volatile T* address, const T& value) {
         FullBarrier();
         *address = value;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static void Prefetch(void* address) {
 #if defined(PLATFORM_64)
     #if defined(PLATFORM_WINDOWS)

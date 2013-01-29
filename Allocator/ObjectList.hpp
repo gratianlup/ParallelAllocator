@@ -206,6 +206,7 @@ public:
         return count_;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Adds the specified node as the first in the list.
     void AddFirst(NodeType* node) {
         // Add to the front of the list.
@@ -224,6 +225,7 @@ public:
         count_++;
     }
     
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Removes and returns the first node in the list,
     // or returns 'nullptr' if the list is empty.
     NodeType* RemoveFirst() {
@@ -243,6 +245,7 @@ public:
         return nullptr;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Adds the specified node as the last in the list.
     void AddLast(NodeType* node) {
         NodePolicy::SetNext(node, nullptr);
@@ -257,6 +260,7 @@ public:
         count_++;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Removes and returns the last node in the list,
     // or returns 'nullptr' if the list is empty.
     NodeType* RemoveLast() {
@@ -281,6 +285,7 @@ public:
         return node;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Adds the specified node after the first one.
     void AddAfter(NodeType* firstNode, NodeType* node) {
         NodeType* firstNext = NodePolicy::GetNext(firstNode);
@@ -296,6 +301,7 @@ public:
         count_++;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Removes the specified node from the list.
     void Remove(NodeType* node) {
         NodeType* nodeNext = NodePolicy::GetNext(node);

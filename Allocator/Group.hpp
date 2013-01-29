@@ -213,6 +213,7 @@ public:
 #endif
 
 private:
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Resets the header of the group (overwrites with 0).
     void Reset() {
 #ifdef PLATFORM_32
@@ -237,6 +238,7 @@ private:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Converts the given memory address to the location
     // relative to this group.
     LocationPtr AddressToLocation(void* address)	{
@@ -248,6 +250,7 @@ private:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Extracts the next location from the freed location 
     // found at the specified address.
     LocationPtr GetNextLocation(void* address) {
@@ -260,6 +263,7 @@ private:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Sets the next location in the freed found at the specified address.
     void SetNextLocation(void* address, LocationPtr location) {
         FreedLocation* freedLoc = static_cast<FreedLocation*>(address);
@@ -267,6 +271,7 @@ private:
     }
 
 #if defined(SORT)
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns the set to which the given location belongs.
     int LocationSet(int location) {
         return location / LOCATIONS_PER_SET;
@@ -278,23 +283,26 @@ private:
     }
 #endif
 
-    // Sorted locations support
 #if defined(SORT)
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Determines whether the private and public lists should be merged.
     bool ShouldMerge() {
         return PublicFree >= MERGE_THRESHOLD;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Adds the specified set to the bitmap.
     void AddSetToBitmap(unsigned __int64* bitmap, unsigned int set) {
         *bitmap |= 1ULL << set;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Removes the specified set to the bitmap.
     void RemoveSetFromBitmap(unsigned __int64* bitmap, unsigned int set) {
         *bitmap &= ~(1ULL << set);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns the number of freed locations 
     // using the bitmap from the specified location.
     unsigned int FreedLocationNumber(FreedLocation* freedLoc) {
@@ -312,6 +320,7 @@ private:
     }
 #endif
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns a location from the list of private locations.
     void* GetListLocation()	{
         void* address = LocationToAddress(PrivateStart);
@@ -333,6 +342,7 @@ private:
         return address;
     }
     
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Removes the specified location from the corresponding set array and bitmap.
 #if defined(SORT)
     void RemoveFromBitmap(char* setArray, unsigned __int64* setBitmap, 
@@ -375,6 +385,7 @@ private:
     }
 #endif
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Sets the data of the specified freed location to 0.
     void ResetLocation(void* address) {
         // It's enough to set only the first 8 bytes to 0, 
@@ -389,6 +400,7 @@ private:
     }
 
 #if defined(SORT)
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Copies the bitmap from the freed source location to the destination one.
     void CopyLocationBitmap(void* dest, void* source) {
         // Save the 'Next' pointer of the destination.
@@ -468,6 +480,7 @@ private:
         return INVALID_INDEX;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Sets the location that holds the bitmap used to keep track
     // of used location in its set.
     void SetBitmapHolder(char* setArray, unsigned int location) {
@@ -478,12 +491,14 @@ private:
         setArray[locationSet] = (location % LOCATIONS_PER_SET) + 1;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Sets the value of the set to 0 (meaning no freed location is in the set).
     void ResetBitmapHolder(char* setArray, unsigned int location) {
         unsigned int locationSet = LocationSet(location);
         setArray[locationSet] = 0;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Gets the location that holds the bitmap used to keep track
     // of used location in its set.
     LocationPtr GetBitmapHolder(char* setArray, LocationPtr location) {
@@ -500,6 +515,7 @@ private:
         return holder - 1 + (locationSet*  LOCATIONS_PER_SET);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Gets the bitmap associated with the given location as a 64-bit number.
     // Use for debugging only.
     unsigned __int64 GetBitmap(void* address)	{
@@ -510,14 +526,15 @@ private:
         return (high << 32) | low;
     }
 
-    // Gets the state (freed or used) of the given location 
-    // from the associated bitmap.
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    // Gets the state (freed or used) of the given location from the associated bitmap.
     unsigned int GetBitmapLocationState(void* address, unsigned int location) {
         FreedLocation* freedLoc = static_cast<FreedLocation*>(address);
         unsigned __int64 bitmap = *((unsigned __int64*)freedLoc->Bitmap);
         return (bitmap &  (1ULL << location)) != 0;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Marks the location as freed in the bitmap associated 
     // with the location at the given address.
     void SetBitmapLocationState(void* address, unsigned int location) {
@@ -547,6 +564,7 @@ private:
         *((unsigned short*)freedLoc->Bitmap + 2) = (unsigned short)(bitmap >> 32);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns the index of the first freed location that is before
     // the given 'startLocation'. If no such location could be found, 
     // INVALID_INDEX is returned.
@@ -558,6 +576,7 @@ private:
         return Bitmap::SearchReverse(bitmap, startLocation);
     }
  
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Adds the freed location to the specified set array and bitmap.
     void AddFreedLocation(char* setArray, unsigned __int64* setBitmap, 
                           LocationInfo locInfo) {
@@ -580,6 +599,7 @@ private:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Tries to find the nearest location to which the one to be freed
     // should be linked in order to keep the list of freed locations 
     // "sorted" by the location address.
@@ -608,6 +628,7 @@ private:
         SetNextLocation(parentAddress, locInfo.Location);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Adds all the locations found in the specified 
     // list to the private list (sorted).
     void FreeLocationList(ListHead& location) {
@@ -624,6 +645,7 @@ private:
     }
 #endif
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Copies the public list to the private one.
     void CopyFreeLists() {
         // Use atomic instructions to get the correct PublicStart 
@@ -651,6 +673,7 @@ private:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Merges the public and private lists, keeping them sorted 
     // by the address of the locations.
     void MergeFreeLists() {
@@ -679,13 +702,14 @@ private:
 #endif
     }
 
-    
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Computes the required alignment for the specified size.
     // 'size' multiple of 16 => 16 bytes alignment, else 8 byte alignment.
     unsigned int GetLocationAlignment(unsigned int size) {
         return 8 + (8 & (((size & 0xF) - 1) >> 31));
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Computes the alignment of the specified range, in order to maintain 
     // the alignment required by the location. Adds between 0 and 12 bytes 
     // between the range header and the first location.
@@ -700,6 +724,7 @@ private:
         return offset;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Creates and initializes a new range at the specified address.
     void CreateStolenRange(StolenRange* range, unsigned int size, 
                            unsigned int alignment) {
@@ -710,6 +735,7 @@ private:
         range->SetLast();
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Computes the size of the specified range. 
     // Includes the header and alignment bytes.
     unsigned int GetRangeSize(StolenRange* range) {
@@ -717,6 +743,7 @@ private:
         return (range->GetSize() * range->Number) + sizeof(StolenRange) + alignment;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Gets a location from the specified range. 
     // It assumes the obtained location remains within the stolen location.
     void* AllocateFromRange(StolenRange* range) {
@@ -725,6 +752,7 @@ private:
         return address;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Creates and initializes a stolen location at the specified address.
     // It also allocates a location having the specified 'size'.
     void* InitializeStolen(void* location, unsigned int size) {
@@ -741,12 +769,14 @@ private:
         return AllocateFromRange(range);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns the first range form the specified stolen locations. 
     // It assumes that this operation is valid!
     StolenRange* GetFirstRange(StolenLocation* stolen) {
         return reinterpret_cast<StolenRange*>((char*)stolen + sizeof(StolenLocation));
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns the next range, or nullptr if the specified range is the last one.
     StolenRange* GetNextRange(StolenRange* range) {
         if(range->IsLast()) {
@@ -756,6 +786,7 @@ private:
         return reinterpret_cast<StolenRange*>((char*)range + GetRangeSize(range));
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns a location that has been stoled to the source location.
     // If the source locations becomes empty, the method return 
     // it's address, else nullptr.
@@ -833,6 +864,7 @@ private:
     }
 
 public:
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Initializes a group that has all it's locations free.
     void InitializeUnused(unsigned int locationSize, unsigned int locations, 
                           unsigned int threadId) {
@@ -853,6 +885,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Initializes a group that has some of it's locations used.
     void InitializeUsed(unsigned int threadId) {
         // Assign the new owner.
@@ -866,7 +899,7 @@ public:
         else MergeFreeLists();
     }
 
-
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool IsEmptyEnough() {
 #if defined(SORT)
         return (CurrentLocation < Locations) || 
@@ -876,10 +909,12 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool CanBeStolen() {
         return PrivateUsed <= ((Locations* 3) / 4); // 75%
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool ShouldReturn() {
         // The group can return to the global pool 
         // if it has more than 75% free locations.
@@ -887,19 +922,23 @@ public:
                (PublicStart == ListHead<LocationPtr>::ListEnd));
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool IsFull() {
         return (PrivateUsed == 0) && 
                (PublicStart == ListHead<LocationPtr>::ListEnd);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool MayBeFull(unsigned int publicLocations) {
         return (PrivateUsed - publicLocations == 0);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool HasPublic() {
         return (PublicStart != ListHead<LocationPtr>::ListEnd);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns a location from the list of private ones.
     // If no location is available, nullptr is returned.
     void* GetPrivateLocation() {
@@ -939,6 +978,7 @@ public:
         return nullptr; // No free location could be found.
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns a location from the public list of freed locations.
     void* GetPublicLocation() {
         // If no private location is free, we merge the public 
@@ -955,6 +995,7 @@ public:
         return GetPrivateLocation();
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void* GetLocation() {
         // First try to allocate from the private locations.
         void* address = GetPrivateLocation();
@@ -967,9 +1008,9 @@ public:
         return GetPublicLocation();
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void ReturnPrivateLocation(void* address) {
         assert(address != nullptr);
-        // ------------------------------------------------------------------* 
 #if defined(STEAL)
         if(((size_t)address - Constants::SMALL_GROUP_HEADER_SIZE) % LocationSize != 0) {
             address = ReturnStolen(address);
@@ -997,6 +1038,7 @@ public:
         PrivateUsed--;
     }
 
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     unsigned int ReturnPublicLocation(void* address) {
 #if defined(STEAL)
         SpinLock publicLock(&PublicLock);
@@ -1031,6 +1073,7 @@ public:
         return replacement.GetCount();
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Tries to steal a location having the specified 'size'. 
     // 'size' = 12 is considered a special case. If a location
     // couldn't be obtained from the active stolen one, the method 
@@ -1113,6 +1156,7 @@ public:
         else return nullptr;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void PrivatizeLocations() {
         if(PrivateStart != Constants::LIST_END) {
             MergeFreeLists();
@@ -1120,8 +1164,8 @@ public:
         else CopyFreeLists();
     }
     
-
-    // Debugging
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    // Debugging helpers
     void DumpStolen() {
         if(Stolen == nullptr) {
             return;
@@ -1145,8 +1189,11 @@ public:
         }
     }
 
-    LocationPtr Loc(void* a) { return AddressToLocation(a); }
+    LocationPtr Loc(void* a) { 
+        return AddressToLocation(a); 
+    }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void VerifyLocations() {
         LocationPtr loc = PrivateStart;
         
@@ -1161,6 +1208,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void DumpLocations() {
         LocationPtr ct = 0;
         LocationPtr loc = PrivateStart;

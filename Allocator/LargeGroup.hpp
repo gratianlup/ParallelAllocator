@@ -132,15 +132,18 @@ public:
     BitmapHolder PublicBitmap;
 
 private:
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void* LocationToAddress(unsigned int location) {
         return (void*)((uintptr_t)this + ((Subgroups.GetSubgroup(location) + 1) * HEADER_SIZE) + 
                        (LocationSize*  location));
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     unsigned int AddressToLocation(void* address) {
         return (unsigned int)(((uintptr_t)address - (uintptr_t)this) / LocationSize);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void Reset() {
 #ifdef PLATFORM_32
         // Reset 4 bytes at a time under 32-bit.
@@ -154,6 +157,7 @@ private:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void MergeBitmaps() {
         // Use atomic instructions to get the correct PublicStart 
         // and set it to Constants::LIST_END.
@@ -176,6 +180,7 @@ private:
     }
 
 public:
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Initializes a group that has all it's locations free.
     void InitializeUnused(unsigned int locationSize, unsigned int locations, 
                           unsigned int threadId) {
@@ -196,6 +201,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Initializes a group that has some of it's locations used.
     void InitializeUsed(unsigned int threadId) {
         ThreadId = threadId;
@@ -206,14 +212,17 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool IsEmptyEnough() {
         return PrivateFree > 0;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool CanBeStolen() {
         return PrivateFree >= (Locations / 4); // 25%
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool ShouldReturn() {
         // The group can return to the global pool if it
         // has more than 75% free locations.
@@ -221,19 +230,23 @@ public:
                (PublicBitmap == BitmapHolder::None));
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool IsFull() {
         return (PrivateFree == Locations) && 
                (PublicBitmap == BitmapHolder::None);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool MayBeFull(unsigned int publicLocations) {
         return (PrivateFree + publicLocations == Locations);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool HasPublic() {
         return (PublicBitmap != BitmapHolder::None);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void* GetPrivateLocation() {
         if(PrivateFree == 0) {
             return nullptr;
@@ -245,6 +258,7 @@ public:
         return LocationToAddress(location);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void* GetPublicLocation() {
         if(PublicBitmap == BitmapHolder::None) {
             return nullptr;
@@ -254,6 +268,7 @@ public:
         return GetPrivateLocation();
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void* GetLocation() {
         // Try to allocate from the private locations first.
         void* address = GetPrivateLocation();
@@ -265,12 +280,14 @@ public:
         return GetPublicLocation();
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void ReturnPrivateLocation(void* address) {
         unsigned int location = AddressToLocation(address);
         Bitmap::SetBit(PrivateBitmap, location);
         PrivateFree++;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     unsigned int ReturnPublicLocation(void* address) {
         unsigned int location = AddressToLocation(address);
         BitmapHolder currentBitmap;

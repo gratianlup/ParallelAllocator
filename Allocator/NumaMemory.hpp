@@ -63,6 +63,7 @@ private:
             }
         }
 
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         void Sort(int n, unsigned int* hopArray) {
             // Speed is not important here, because this is done only once.
             // A basic selection sort is fast enough.
@@ -149,6 +150,7 @@ private:
     bool isNuma_;
 
 public:
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void* AllocateMemory(size_t size, unsigned int prefferedNode) {
         void* address = Memory::AllocateNuma(size, prefferedNode);
 
@@ -169,18 +171,22 @@ public:
         return address;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void DeallocateMemory(void* address, unsigned int prefferedNode) {
         Memory::DeallocateNuma(address, prefferedNode);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     unsigned int GetCurrentCpu() {
         return ThreadUtils::GetCurrentCPUNumber();
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     unsigned int GetCpuNumber() {
         return ThreadUtils::GetCpuNumber();
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     template <class T>
     void* GetGroup(unsigned int currentNode, unsigned int currentThreadId) {
         // Find the nearest NUMA node with free blocks
@@ -207,6 +213,7 @@ public:
         return nullptr; // Could not allocate.
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     template <class T>
     void ReturnGroup(void* group, unsigned int parentNode) {
         NumaNode* info = &nodes_[parentNode];
@@ -215,34 +222,41 @@ public:
             ->ReturnFullGroup<PolicyType>(castedGroup, true);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     template <class T>
     void SetBlockAllocator(typename BASelector<T>::AllocType* allocator, 
                            unsigned int nodeIndex) {
         BASelector<T>::SetAllocator(&nodes_[nodeIndex], allocator);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     template <class T>
     void BlockAvailable(unsigned int nodeIndex) {
         BASelector<T>::SetFreeBlock(&nodes_[nodeIndex], true);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     template <class T>
     void BlockUnavailable(unsigned int nodeIndex) {
         BASelector<T>::SetFreeBlock(&nodes_[nodeIndex], false);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     unsigned int GetCpuNode(unsigned int cpuIndex) {
         return cpuToNuma_[cpuIndex];
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool IsNuma() {
         return isNuma_;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     unsigned int GetNodeNumber() {
         return nodeNumber_;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void Initialize() {
         unsigned int maxNode = 0;
         nodeNumber_ = 0;

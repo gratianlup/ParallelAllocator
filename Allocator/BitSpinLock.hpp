@@ -144,6 +144,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Releases the lock.
     void Unlock() {
         T oldValue = lockValue_;
@@ -156,12 +157,14 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Extracts the low part (from LSB to the lock bit).
     T GetLowPart() {
         // Extracts the low part of the lock value (not including the lock bit).
         return Memory::ReadValue(&lockValue_) & LowPartMask;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Sets the low part (from LSB to the lock bit) to the specified value.
     void SetLowPart(T value) {
         T oldValue = lockValue_;
@@ -174,6 +177,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Increments the low part (from LSB to the lock bit) with the specified value.
     void AddLowPart(T value) {
         T oldValue = lockValue_;
@@ -186,12 +190,14 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Extracts the low part (from LSB to the lock bit).
     T GetHighPart() {
         // Extracts the low part of the lock value (not including the lock bit).
         return Memory::ReadValue(&lockValue_) & HighPartMask;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Sets the low part (from LSB to the lock bit) to the specified value.
     void SetHighPart(T value) {
         T oldValue = lockValue_;
@@ -204,6 +210,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Increments the low part (from LSB to the lock bit) with the specified value.
     void AddHighPart(T value) {
         T oldValue = lockValue_;

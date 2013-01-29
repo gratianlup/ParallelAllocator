@@ -70,6 +70,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned int GetCurrentThreadId()	{
 #if defined(PLATFORM_WINDOWS)
         return (unsigned int)::GetCurrentThreadId();
@@ -78,6 +79,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned int GetCpuNumber() {
 #if defined(PLATFORM_WINDOWS)
         SYSTEM_INFO si;
@@ -88,6 +90,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     inline static unsigned int GetCurrentCPUNumber() {
         // Get the processor ID using APIC.
         // http://software.intel.com/en-us/articles/intel-64-architecture-processor-topology-enumeration/
@@ -103,6 +106,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned int GetHighestNumaNode() {
 #if defined(PLATFORM_WINDOWS)
         unsigned int number;
@@ -113,6 +117,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned __int64 GetNumaNodeCpus(unsigned int node) {
 #if defined(PLATFORM_WINDOWS)
         unsigned __int64 mask;
@@ -126,6 +131,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned int AllocateTLSIndex() {
 #if defined(PLATFORM_WINDOWS)
         return TlsAlloc();
@@ -134,6 +140,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Methods for Thread Local Storage (TLS)
     static void* GetTLSValue(unsigned int index) {
 #if defined(PLATFORM_WINDOWS)
@@ -143,6 +150,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static void SetTLSValue(unsigned int index, void* data) {
 #if defined(PLATFORM_WINDOWS)
         TlsSetValue(index, data);
@@ -151,6 +159,7 @@ public:
 #endif	
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static void FreeTLSIndex(unsigned int index) {
 #if defined(PLATFORM_WINDOWS)
         TlsFree(index);
@@ -159,6 +168,7 @@ public:
 #endif	
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static void SwitchToThread() {
 #if defined(PLATFORM_WINDOWS)
         ::SwitchToThread();
@@ -167,6 +177,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static void Wait() {
 #if defined(PLATFORM_32)
         for(unsigned int i = 0; i < 64; i++) {
@@ -187,6 +198,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static void SpinWait(unsigned int waitCount) {
         for(unsigned int i = 0; i < waitCount; i++) {
             ThreadUtils::Wait();
@@ -198,6 +210,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns the system time in seconds.
     static unsigned int GetSystemTime() {
 #if defined(PLATFORM_WINDOWS)
@@ -210,6 +223,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Creates a thread that calls the specified function.
     static void* CreateThread(void* startAddress, void* param, 
                               size_t stackSize = 4 * 1024) {
@@ -222,6 +236,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     inline static bool SetThreadLowPriority(void* threadHandle) {
 #if defined(PLATFORM_WINDOWS)
         return SetThreadPriority((HANDLE)threadHandle, THREAD_PRIORITY_BELOW_NORMAL);
@@ -230,6 +245,7 @@ public:
 #endif`
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static void Sleep(unsigned int milliseconds) {
 #if defined(PLATFORM_WINDOWS)
         ::Sleep(milliseconds);

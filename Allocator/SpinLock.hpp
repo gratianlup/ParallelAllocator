@@ -85,6 +85,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Releases the spin lock.
     void Unlock() {
         Atomic::CompareExchange(lockValue_, 0, 1);

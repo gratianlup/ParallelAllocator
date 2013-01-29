@@ -64,6 +64,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Searches a 64-bit integer from most significant bit
     // to least significant bit for a set bit.
     static unsigned int SearchReverse(unsigned __int64 mask) {
@@ -99,6 +100,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Searches a 32-bit integer from least significant bit 
     // to most significant bit for a set bit.
     static unsigned int SearchForward(unsigned int mask) {
@@ -115,6 +117,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Searches a 64-bit integer from least significant bit
     // to most significant bit for a set bit.
     static unsigned int SearchForward(unsigned __int64 mask) {
@@ -150,6 +153,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Searches a 64-bit integer from the specified start bit
     // to least significant one for a set bit.
     static unsigned int SearchReverse(unsigned __int64 mask, unsigned int start) {
@@ -197,6 +201,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Searches a 64-bit integer from the specified start bit
     // to most significant bit for a set bit.
     static unsigned int SearchForward(unsigned __int64 mask, unsigned int start) {
@@ -245,6 +250,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Methods for setting/resetting bits.
     static void SetBit(unsigned int& mask, unsigned int index) {
         mask |= 1 << index;

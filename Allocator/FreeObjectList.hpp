@@ -70,6 +70,7 @@ public:
         return node;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Tries to add the specified node to the list. If the maximum number 
     // of objects is reached, the object is not added and it's address 
     // is returned, otherwise 'nullptr' is returned.
@@ -79,6 +80,7 @@ public:
         return AddObjectUnlocked(node);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Removes the specified object from the list.
     void RemoveObject(NodeType* node) {
         // Acquire the lock. Will be automatically released by the destructor.
@@ -86,6 +88,7 @@ public:
         Remove(node);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Removes and returns the first object in the list.
     // Returns 'nullptr' if no object could be found.
     NodeType* RemoveFirst() {
@@ -94,6 +97,7 @@ public:
         return ObjectList::RemoveFirst();
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Removes and returns the first object in the list.
     // Returns 'nullptr' if no object could be found.
     // Note that this doesn't take the lock!
@@ -101,22 +105,26 @@ public:
         return ObjectList::RemoveFirst();
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Should be used to provide synchronization for the unlocked
     // variants of the add/remove methods.
     unsigned int* GetLockValue() {
         return &lock_;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Removes the specified object from the list.
     // Note that this doesn't take the lock!
     void RemoveObjectUnlocked(NodeType* node) {
         Remove(node);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     unsigned int GetMaxObjects() {
         return maxObjects_;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void SetMaxObjects(unsigned int value) {
         maxObjects_ = value;
     }

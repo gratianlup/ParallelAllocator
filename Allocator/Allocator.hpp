@@ -230,6 +230,7 @@ public:
         }
     };
     
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void Initialize()	{
         // Uses the double-checked locking, corrected for multicore
         // (see Andrei Alexandrescu - C++ and the Perils of Double-Checked Locking).
@@ -250,11 +251,13 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns the context associated with this thread from TLS.
     ThreadContext* GetCurrentContext() {
         return reinterpret_cast<ThreadContext*>(ThreadUtils::GetTLSValue(tlsIndex_));
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Creates and initializes a new context, and if needed, initializes TLS.
     ThreadContext* CreateContext() {
         Statistics::ThreadCreated();
@@ -314,18 +317,21 @@ public:
         return context;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns the specified context to the context pool.
     void ReleaseContext(ThreadContext* context) {
         ThreadUtils::SetTLSValue(tlsIndex_, nullptr);
         threadContextPool_.ReturnObject(context);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Makes the specified group the active one.
     template <class GroupType, class BinType>
     void AddNewGroup(BinType* bin, GroupType* group) {
         bin->AddFirst(group);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Brings the specified group to the front of the bin.
     template <class GroupType, class BinType>
     void MakeGroupActive(BinType* bin, GroupType* group) {
@@ -343,6 +349,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Determines the required allocation size and bin for small locations.
     // Sizes under 64 bytes are determined using a lockup table.
     // Sizes between 64 and 1024 bytes are computed.
@@ -452,6 +459,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Determines the required allocation size and bin for large locations.
     void GetAllocationInfoLarge(size_t size, AllocationInfo& allocInfo) {
         // Selects using a series of if-else statements.
@@ -469,6 +477,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool IsHugeLocation(void* address, void* aligned) {
         // Huge locations always start at 64 bytes, 
         // relative to the group alignment (16 KB).
@@ -476,14 +485,17 @@ public:
                 Constants::HUGE_HEADER_SIZE;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool IsOSLocation(void* address, void* aligned) {
         return ((uintptr_t)address - (uintptr_t)aligned) <= sizeof(OSHeader);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool IsLargeLocation(void* address, void* aligned) {
         return LargeTraits::PolicyType::GetType(reinterpret_cast<LargeTraits::NodeType*>(aligned));
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Tries to steal a mostly-empty group from another bin.
     template <class Manager>
     typename Selector<Manager>::GroupType* 
@@ -516,6 +528,7 @@ public:
         return nullptr;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Removes the specified group from all the bins that come before the owner one.
     template <class Manager>
     void RemoveStolenGroup(ThreadContext* context, typename Selector<Manager>::GroupType* group, 
@@ -542,12 +555,14 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     template <>
     void RemoveStolenGroup<LargeBAType>(ThreadContext* context, LargeGroup* group, 
                                         unsigned int groupBin) {
         // Stealing is always disabled for large groups.
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Marks the specified bin as (un)available for stealing by other bins.
     template <class GroupType>
     void SetAvailableForStealing(ThreadContext* context, unsigned int binIndex,
@@ -558,12 +573,14 @@ public:
         else Bitmap::ResetBit(context->Header.AvailableGroups, binIndex);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     template <>
     void SetAvailableForStealing<LargeGroup>(ThreadContext* context,
                                              unsigned int binIndex, bool available) {
         // Stealing always disabled for large groups.
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     template <class Manager>
     void* TrySteal(typename Selector<Manager>::BinType* bin, 
                    ThreadContext* context, AllocationInfo& allocInfo) {
@@ -606,6 +623,7 @@ public:
         return nullptr;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     template <>
     void* TrySteal<LargeBAType>(LargeBin* bin, ThreadContext* context,
                                 AllocationInfo& allocInfo) {
@@ -613,6 +631,7 @@ public:
         return nullptr;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Gets a location large enough to hold the specified number of bytes.
     template <class Manager>
     void* Allocate(size_t size)	{
@@ -778,6 +797,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Determines if the specified group should be returned 
     // to the global list of unused groups.
     template <class Manager>
@@ -790,6 +810,7 @@ public:
                (bin->Count > (bin->ReturnAllowed - 1));
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Determines if the specified partially empty group should be 
     // returned to block allocator. Only groups with the size 
     // of a location multiple of the cache line can be returned.
@@ -805,6 +826,7 @@ public:
                (bin->Count > (bin->ReturnAllowed - 1));
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns a group that is only partially empty to the global lists.
     // This method presents some problems, like another thread adding 
     // the group to the list of public ones before the group could be 
@@ -872,6 +894,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns a group that is completely empty to the global list.
     // No synchronization is required because only the owner thread
     // can remove the group.
@@ -903,6 +926,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns a location from another thread that the one 
     // on which it was allocated. If this is the first public location 
     // from the group, the group is added to the list of public groups 
@@ -932,6 +956,7 @@ public:
          }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Deallocates the specified location. Handles both owner and foreign threads.
     template <class Manager>
     void Deallocate(void* address, typename Selector<Manager>::GroupType* group) {
@@ -995,15 +1020,18 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     HugeLocation* HugeFromClient(void* address) {
         return reinterpret_cast<HugeLocation*>((void*)(((uintptr_t)address) - 
                                                Constants::HUGE_HEADER_SIZE));
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void* HugeToClient(void* address) {
         return (void*)(((uintptr_t)address) + Constants::HUGE_HEADER_SIZE);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Tries to remove the specified huge location.
     void RemoveHugeLocation(HugeLocation* location, ThreadContext* context) {
         // Under Windows there are 3 situations:
@@ -1036,6 +1064,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Walks the huge location bin array and removes locations
     // that have not been used recently. Called by a thread that runs 
     // in the background with a very low priority.
@@ -1070,6 +1099,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Creates the thread that cleans the huge location cache on a regular interval.
     void CreateCacheCleaningThread() {
         bool state = Memory::ReadValue(&cacheThreadInitialized_);
@@ -1097,6 +1127,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Makes sure that the huge cache cleaning thread is started.
     // Called only by the huge location allocation method.
     void EnsureCacheThreadActive() {
@@ -1105,6 +1136,7 @@ public:
         }
     }
  
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // The thread that cleans the huge location cache at regular intervals.
     static void CacheCleaningThread(void* args) {
 #if defined(PLATFORM_WINDOWS) && defined(_DEBUG)
@@ -1122,6 +1154,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Initializes a huge location that has no other linked locations.
     void InitializeHugeLocation(void* address, unsigned int bin, unsigned int size) {
         HugeLocation* location = reinterpret_cast<HugeLocation*>(address);
@@ -1130,6 +1163,7 @@ public:
         location->Size = size;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Initializes a huge location that has linked locations and/or block headers (small groups).
     // Used only under Windows.
     void InitializeHugeLocationEx(void* address, unsigned int bin, unsigned int size, 
@@ -1143,6 +1177,7 @@ public:
         location->Parent = parent;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Tries to create a block header with small groups in the unused space of the
     // specified huge location. If the space could be used, it initializes the parent location.
     // Used only under Windows.
@@ -1170,6 +1205,7 @@ public:
         return false;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Tries to create huge locations in the unused space of the 
     // specified huge location. The created location have the size 
     // of the parent. If the corresponding cache is full,  we try to create 
@@ -1221,7 +1257,8 @@ public:
 
         return foundAvailable;
     }
-
+    
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Allocates a huge location.
     void* AllocateHuge(unsigned int size) {
         // The object is large and must be allocated from the OS 
@@ -1301,6 +1338,7 @@ public:
         return HugeToClient(address);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Deallocates a huge location.
     // Under Windows, the location is deallocated only if the reference 
     // count of the parent reaches 0.
@@ -1358,7 +1396,6 @@ public:
         }
     }
 
-
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Allocates a location having the specified size.
     void* Allocate(size_t size) {
@@ -1380,6 +1417,7 @@ public:
         return AllocateFromOS(size);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Deallocates the location indicated by the specified address.
     void Deallocate(void* address) {
         // Do nothing if the address is nullptr (all allocators behave like this).
@@ -1422,8 +1460,9 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void* Realloc(void* address, size_t newSize) {
-        //! TODO: Implement
+        //! TODO: Not yet implemented (problems on 64 bit systems with the assembly code).
         return nullptr;
     }
 };

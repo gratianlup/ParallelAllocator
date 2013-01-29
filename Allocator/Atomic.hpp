@@ -95,6 +95,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned __int64 Increment64(volatile unsigned __int64* location) {
 #if defined(PLATFORM_WINDOWS)
         return _InterlockedIncrement64((__int64*)location);
@@ -103,6 +104,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned int Decrement(volatile unsigned int* location) {
 #if defined(PLATFORM_WINDOWS)
         return (unsigned int)_InterlockedDecrement((long*)location);
@@ -111,6 +113,7 @@ public:
 #endif
     }
     
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned __int64 Decrement64(volatile unsigned __int64* location) {
 #if defined(PLATFORM_WINDOWS)
         return _InterlockedDecrement64((__int64*)location);
@@ -119,6 +122,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned int Add(volatile unsigned int* location, unsigned int value) {
 #if defined(PLATFORM_WINDOWS)
         return (unsigned int)_InterlockedExchangeAdd((long*)location, (long)value);
@@ -127,6 +131,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static __int64 Add64(volatile __int64* location, __int64 value) {
 #if defined(PLATFORM_WINDOWS)
         return _InterlockedExchangeAdd64(location, value);
@@ -135,6 +140,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned int Exchange(volatile unsigned int* location, unsigned int value) {
 #if defined(PLATFORM_WINDOWS)
         return (unsigned int)InterlockedExchange((long*)location, (long)value);
@@ -143,6 +149,7 @@ public:
 #endif
     }
     
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static __int64 Exchange64(volatile __int64* location, __int64 value) {
 #if defined(PLATFORM_WINDOWS)
         return _InterlockedExchange64(location, value);
@@ -151,6 +158,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned int CompareExchange(volatile unsigned int* location, 
                                         unsigned int value, unsigned int comparand) {
 #if defined(PLATFORM_WINDOWS)
@@ -161,6 +169,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned __int64 CompareExchange64(volatile unsigned __int64* location, 
                                               unsigned __int64 value,
                                               unsigned __int64 comparand) {
@@ -172,6 +181,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned __int64 CompareExchange128(volatile unsigned __int64* location, 
                                                unsigned __int64 valueHigh, 
                                                unsigned __int64 valueLow,
@@ -193,6 +203,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned int And(volatile unsigned int* location, unsigned int value) {
 #if defined(PLATFORM_WINDOWS)
         return (unsigned int)_InterlockedAnd((long*)location, (long)value);
@@ -201,6 +212,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static char And8(volatile char* location, char value) {
 #if defined(PLATFORM_WINDOWS)
         return _InterlockedAnd8(location, value);
@@ -209,6 +221,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static short And16(volatile short* location, short value) {
 #if defined(PLATFORM_WINDOWS)
         return _InterlockedAnd16(location, value);
@@ -217,6 +230,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static __int64 And64(volatile __int64* location, __int64 value) {
 #if defined(PLATFORM_WINDOWS)
         return _InterlockedAnd64(location, value);
@@ -225,6 +239,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned int Or(volatile unsigned int* location, unsigned int value) {
 #if defined(PLATFORM_WINDOWS)
         return (unsigned int)_InterlockedOr((long*)location, (long)value);
@@ -233,6 +248,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static char Or8(volatile char* location, char value) {
 #if defined(PLATFORM_WINDOWS)
         return _InterlockedOr8(location, value);
@@ -240,7 +256,8 @@ public:
         static_assert(false, "Not yet implemented.");
 #endif
     }
-
+    
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static short Or16(volatile short* location, short value) {
 #if defined(PLATFORM_WINDOWS)
         return _InterlockedOr16(location, value);
@@ -249,6 +266,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static __int64 Or64(volatile __int64* location, __int64 value) {
 #if defined(PLATFORM_WINDOWS)
         return _InterlockedOr64(location, value);
@@ -257,6 +275,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned int Xor(volatile unsigned int* location, unsigned int value) {
 #if defined(PLATFORM_WINDOWS)
         return (unsigned int)_InterlockedXor((long*)location, (long)value);
@@ -265,6 +284,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static char Xor8(volatile char* location, char value) {
 #if defined(PLATFORM_WINDOWS)
         return _InterlockedXor8(location, value);
@@ -273,6 +293,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static short Xor16(volatile short* location, short value) {
 #if defined(PLATFORM_WINDOWS)
         return _InterlockedXor16(location, value);
@@ -281,6 +302,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static __int64 Xor64(volatile __int64* location, __int64 value) {
 #if defined(PLATFORM_WINDOWS)
         return _InterlockedXor64(location, value);
@@ -289,6 +311,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned __int64 SetBit64(volatile unsigned __int64* location, 
                                      unsigned int position) {
 #if defined(PLATFORM_WINDOWS)
@@ -314,6 +337,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     static unsigned __int64 ResetBit64(volatile unsigned __int64* location, 
                                        unsigned int position) {
 #if defined(PLATFORM_WINDOWS)

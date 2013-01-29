@@ -64,10 +64,12 @@ struct HugeLocation : public ListNode {
     volatile unsigned int References; // Keeps track of the groups obtained from unused memory.
     bool HasBlock;
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void AddRef()  { 
         Atomic::Increment(&References); 
     }
-
+    
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool Release() { 
         return Atomic::Decrement(&References) == 0; 
     }
@@ -82,7 +84,12 @@ struct HugeBin {
     unsigned int MaxCacheSize;
     unsigned int ExtendedCacheSize;
     unsigned int CacheFullHits;
-
+    
+     // Align to cache line.
+    char Padding[Constants::CACHE_LINE_SIZE - 
+                 sizeof(Stack<HugeLocation*>) - (5 * sizeof(int))];
+    
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void IncreaseCacheSize() {
         // Increase the size of the cache if the demand is very high.
         if(Atomic::Increment((unsigned int*)&CacheFullHits) % 4 == 0) {
@@ -91,17 +98,14 @@ struct HugeBin {
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void DecreaseCacheSize() {
         // NOT ATOMIC!!!
         if(CacheSize > MaxCacheSize) {
             CacheSize = std::max(MaxCacheSize, (CacheSize + MaxCacheSize) / 2);
             Cache.SetMaxObjects(CacheSize);
         }
-    }
-
-    // Align to cache line.
-    char Padding[Constants::CACHE_LINE_SIZE - 
-                 sizeof(Stack<HugeLocation*>) - (5 * sizeof(int))];
+    }   
 };
 #pragma pop()
 

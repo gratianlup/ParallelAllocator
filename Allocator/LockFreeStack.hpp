@@ -111,6 +111,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Tries to extract the top object of the stack.
     // If the stack is empty, the method returns nullptr.
     T* Pop() {
@@ -192,6 +193,7 @@ public:
         return reinterpret_cast<T>(list_.AddObject(node));
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Tries to extract the top object of the stack.
     // If the stack is empty, the method returns nullptr.
     T Pop() {
