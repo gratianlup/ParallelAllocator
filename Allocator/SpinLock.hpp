@@ -11,11 +11,11 @@
 // disclaimer in the documentation and/or other materials provided
 // with the distribution.
 //
-// * The name "DocumentClustering" must not be used to endorse or promote
+// * The name "ParallelAllocator" must not be used to endorse or promote
 // products derived from this software without prior written permission.
 //
-// * Products derived from this software may not be called "DocumentClustering" nor
-// may "DocumentClustering" appear in their names without prior written
+// * Products derived from this software may not be called "ParallelAllocator" nor
+// may "ParallelAllocator" appear in their names without prior written
 // permission of the author.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -43,52 +43,52 @@ namespace Base {
 
 class SpinLock {
 private:
-	unsigned int* lockValue_;
+    unsigned int* lockValue_;
 
 public:
-	SpinLock(unsigned int* lock) : lockValue_(lock) {
-		Lock();
-	}
+    SpinLock(unsigned int* lock) : lockValue_(lock) {
+        Lock();
+    }
 
-	~SpinLock()	{
-		Unlock();
-	}
+    ~SpinLock()	{
+        Unlock();
+    }
 
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Waits until the spin lock is acquired.
-	void Lock() {
+    void Lock() {
 #if defined(PLATFORM_WINDOWS)
-		if(Atomic::CompareExchange(lockValue_, 1, 0) != 0) {
-			unsigned int waitCount = 1;
-			ThreadUtils::Wait();
+        if(Atomic::CompareExchange(lockValue_, 1, 0) != 0) {
+            unsigned int waitCount = 1;
+            ThreadUtils::Wait();
 
-			while(true) {
+            while(true) {
                 // Spin on the lock value without using CAS because it's faster.
-				if(*(volatile unsigned int*)lockValue_ == 0) {
+                if(*(volatile unsigned int*)lockValue_ == 0) {
                     // Do a CAS read to be really sure the lock is availalble.
-					if(Atomic::CompareExchange(lockValue_, 1, 0) == 0) {
+                    if(Atomic::CompareExchange(lockValue_, 1, 0) == 0) {
                         return; // Lock acquired.
                     }
-				}
+                }
 
                 // The lock is not free, wait for it using exponential back-off.
-				ThreadUtils::SpinWait(waitCount);
+                ThreadUtils::SpinWait(waitCount);
                 waitCount *= 2;
 
                 if(waitCount > 1024) {
                     waitCount = 1024;
                 }
-			}
-		}
+            }
+        }
 #else
         static_assert(false, "Not yet implemented.");
 #endif
-	}
+    }
 
     // Releases the spin lock.
-	void Unlock() {
-		Atomic::CompareExchange(lockValue_, 0, 1);
-	}
+    void Unlock() {
+        Atomic::CompareExchange(lockValue_, 0, 1);
+    }
 };
 
 } // namespace Base

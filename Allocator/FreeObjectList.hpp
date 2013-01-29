@@ -11,11 +11,11 @@
 // disclaimer in the documentation and/or other materials provided
 // with the distribution.
 //
-// * The name "DocumentClustering" must not be used to endorse or promote
+// * The name "ParallelAllocator" must not be used to endorse or promote
 // products derived from this software without prior written permission.
 //
-// * Products derived from this software may not be called "DocumentClustering" nor
-// may "DocumentClustering" appear in their names without prior written
+// * Products derived from this software may not be called "ParallelAllocator" nor
+// may "ParallelAllocator" appear in their names without prior written
 // permission of the author.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -46,80 +46,80 @@ template <class NodeType = ListTraits<>::NodeType,
           class NodePolicy = ListTraits<>::PolicyType>
 class FreeObjectList : public ObjectList<NodeType, NodePolicy> {
 private:
-	unsigned int lock_;
-	unsigned int maxObjects_;
+    unsigned int lock_;
+    unsigned int maxObjects_;
 
 public:
-	FreeObjectList() : 
+    FreeObjectList() : 
             ObjectList(), lock_(0), maxObjects_(0x7FFFFFFF) { }
 
-	FreeObjectList(unsigned int maxObjects) : 
+    FreeObjectList(unsigned int maxObjects) : 
             ObjectList(), lock_(0), maxObjects_(maxObjects) { }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	// Tries to add the specified node to the list. If the maximum number 
+    // Tries to add the specified node to the list. If the maximum number 
     // of objects is reached, the object is not added and it's address 
     // is returned, otherwise 'nullptr' is returned.
     // Note that this doesn't take the lock!
-	NodeType* AddObjectUnlocked(NodeType* node)	{
-		if(Count < maxObjects_) {
-   			AddFirst(node);
-			return nullptr;
-		}
-		
-		return node;
-	}
+    NodeType* AddObjectUnlocked(NodeType* node)	{
+        if(Count < maxObjects_) {
+            AddFirst(node);
+            return nullptr; 
+        }
+                
+        return node;
+    }
 
     // Tries to add the specified node to the list. If the maximum number 
     // of objects is reached, the object is not added and it's address 
     // is returned, otherwise 'nullptr' is returned.
-	NodeType* AddObject(NodeType* node)	{
+    NodeType* AddObject(NodeType* node)	{
         // Acquire the lock. Will be automatically released by the destructor.
-		SpinLock headerLock(&lock_);
-		return AddObjectUnlocked(node);
-	}
+        SpinLock headerLock(&lock_);
+        return AddObjectUnlocked(node);
+    }
 
-	// Removes the specified object from the list.
-	void RemoveObject(NodeType* node) {
+    // Removes the specified object from the list.
+    void RemoveObject(NodeType* node) {
         // Acquire the lock. Will be automatically released by the destructor.
-		SpinLock headerLock(&lock_);
-		Remove(node);
-	}
-
-	// Removes and returns the first object in the list.
-	// Returns 'nullptr' if no object could be found.
-	NodeType* RemoveFirst() {
-        // Acquire the lock. Will be automatically released by the destructor.
-		SpinLock headerLock(&lock_);
-		return ObjectList::RemoveFirst();
-	}
+        SpinLock headerLock(&lock_);
+        Remove(node);
+    }
 
     // Removes and returns the first object in the list.
-	// Returns 'nullptr' if no object could be found.
-    // Note that this doesn't take the lock!
-	NodeType* RemoveFirstUnlocked() {
-		return ObjectList::RemoveFirst();
-	}
+    // Returns 'nullptr' if no object could be found.
+    NodeType* RemoveFirst() {
+        // Acquire the lock. Will be automatically released by the destructor.
+        SpinLock headerLock(&lock_);
+        return ObjectList::RemoveFirst();
+    }
 
-	// Should be used to provide synchronization for the unlocked
+    // Removes and returns the first object in the list.
+    // Returns 'nullptr' if no object could be found.
+    // Note that this doesn't take the lock!
+    NodeType* RemoveFirstUnlocked() {
+        return ObjectList::RemoveFirst();
+    }
+
+    // Should be used to provide synchronization for the unlocked
     // variants of the add/remove methods.
-	unsigned int* GetLockValue() {
-		return &lock_;
-	}
+    unsigned int* GetLockValue() {
+        return &lock_;
+    }
 
-	// Removes the specified object from the list.
+    // Removes the specified object from the list.
     // Note that this doesn't take the lock!
-	void RemoveObjectUnlocked(NodeType* node) {
-		Remove(node);
-	}
+    void RemoveObjectUnlocked(NodeType* node) {
+        Remove(node);
+    }
 
-	unsigned int GetMaxObjects() {
-		return maxObjects_;
-	}
+    unsigned int GetMaxObjects() {
+        return maxObjects_;
+    }
 
-	void SetMaxObjects(unsigned int value) {
-		maxObjects_ = value;
-	}
+    void SetMaxObjects(unsigned int value) {
+        maxObjects_ = value;
+    }
 };
 
 } // namespace Base

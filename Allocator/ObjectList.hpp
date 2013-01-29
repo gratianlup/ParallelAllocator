@@ -11,11 +11,11 @@
 // disclaimer in the documentation and/or other materials provided
 // with the distribution.
 //
-// * The name "DocumentClustering" must not be used to endorse or promote
+// * The name "ParallelAllocator" must not be used to endorse or promote
 // products derived from this software without prior written permission.
 //
-// * Products derived from this software may not be called "DocumentClustering" nor
-// may "DocumentClustering" appear in their names without prior written
+// * Products derived from this software may not be called "ParallelAllocator" nor
+// may "ParallelAllocator" appear in their names without prior written
 // permission of the author.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -44,8 +44,8 @@ namespace Base {
 #pragma pack(1)
 class ListNode {
 public:
-	ListNode* Next;
-	ListNode* Previous;
+    ListNode* Next;
+    ListNode* Previous;
 };
 #pragma pack(pop)
 
@@ -55,10 +55,10 @@ public:
 // Used by LargeGroup objects on 32 bit systems.
 class ListNode32 {
 public:
-	ListNode32* Next;
-	ListNode32* Previous;
-	unsigned int Type;
-	unsigned int Subgroup;
+    ListNode32* Next;
+    ListNode32* Previous;
+    unsigned int Type;
+    unsigned int Subgroup;
 };
 #pragma pack(pop)
 
@@ -66,113 +66,113 @@ public:
 // Policy used to handle operations on the Next and Previous pointers of a ListNode
 // in the default case (used by small groups).
 struct DefaultNodePolicy {
-	static ListNode* GetNext(ListNode* node) {
-		return node->Next;
-	}
+    static ListNode* GetNext(ListNode* node) {
+        return node->Next;
+    }
 
-	static void SetNext(ListNode* node, ListNode* next) {
-		node->Next = next;
-	}
+    static void SetNext(ListNode* node, ListNode* next) {
+        node->Next = next;
+    }
 
-	static ListNode* GetPrevious(ListNode* node) {
-		return node->Previous;
-	}
+    static ListNode* GetPrevious(ListNode* node) {
+        return node->Previous;
+    }
 
-	static void SetPrevious(ListNode* node, ListNode* previous) {
-		node->Previous = previous;
-	}
+    static void SetPrevious(ListNode* node, ListNode* previous) {
+        node->Previous = previous;
+    }
 };
 
 
 // Policy used with large groups. It packs two values (type and subgroup) into the
 // most significant 3 bits of the Next pointer. 64 bit version.
 struct LargeNodePolicy {
-	static const unsigned int TypeIndex     = (sizeof(uintptr_t) * 8) - 1;
-	static const uintptr_t TypeMask         = (intptr_t)1 << TypeIndex;
-	static const unsigned int SubgroupIndex = (sizeof(uintptr_t) * 8) - 2;
-	static const uintptr_t SubgroupMask     = ((uintptr_t)1 << SubgroupIndex) |
-											  ((uintptr_t)1 << (SubgroupIndex - 1));
-	static const uintptr_t DataMask         = TypeMask | SubgroupMask;
-	static const uintptr_t PointerMask      = ~DataMask;
+    static const unsigned int TypeIndex     = (sizeof(uintptr_t) * 8) - 1;
+    static const uintptr_t TypeMask         = (intptr_t)1 << TypeIndex;
+    static const unsigned int SubgroupIndex = (sizeof(uintptr_t) * 8) - 2;
+    static const uintptr_t SubgroupMask     = ((uintptr_t)1 << SubgroupIndex) |
+                                              ((uintptr_t)1 << (SubgroupIndex - 1));
+    static const uintptr_t DataMask         = TypeMask | SubgroupMask;
+    static const uintptr_t PointerMask      = ~DataMask;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-	static ListNode* GetNext(ListNode* node) {
-		return reinterpret_cast<ListNode*>((uintptr_t)node->Next & PointerMask);
-	}
+    static ListNode* GetNext(ListNode* node) {
+        return reinterpret_cast<ListNode*>((uintptr_t)node->Next & PointerMask);
+    }
 
-	static void SetNext(ListNode* node, ListNode* next) {
-		node->Next = reinterpret_cast<ListNode*>(((uintptr_t)node->Next&  DataMask) |
+    static void SetNext(ListNode* node, ListNode* next) {
+        node->Next = reinterpret_cast<ListNode*>(((uintptr_t)node->Next&  DataMask) |
                                                   (uintptr_t)next);
-	}
+    }
 
-	static ListNode* GetPrevious(ListNode* node) {
-		return node->Previous;     // Previous is not affected.
-	}
+    static ListNode* GetPrevious(ListNode* node) {
+        return node->Previous;     // Previous is not affected.
+    }
 
-	static void SetPrevious(ListNode* node, ListNode* previous) {
-		node->Previous = previous; // Previous is not affected.
-	}
+    static void SetPrevious(ListNode* node, ListNode* previous) {
+        node->Previous = previous; // Previous is not affected.
+    }
 
-	static unsigned int GetType(ListNode* node) {
-		return ((uintptr_t)node->Next&  TypeMask) >> TypeIndex;
-	}
+    static unsigned int GetType(ListNode* node) {
+        return ((uintptr_t)node->Next&  TypeMask) >> TypeIndex;
+    }
 
-	static void SetType(ListNode* node) {
-		node->Next = reinterpret_cast<ListNode*>((uintptr_t)node->Next | TypeMask);
-	}
+    static void SetType(ListNode* node) {
+        node->Next = reinterpret_cast<ListNode*>((uintptr_t)node->Next | TypeMask);
+    }
 
-	static void ResetType(ListNode* node) {
-		node->Next = reinterpret_cast<ListNode*>((uintptr_t)node->Next&  ~TypeMask);
-	}
+    static void ResetType(ListNode* node) {
+        node->Next = reinterpret_cast<ListNode*>((uintptr_t)node->Next&  ~TypeMask);
+    }
 
-	static unsigned int GetSubgroup(ListNode* node) {
-		return ((uintptr_t)node->Next&  SubgroupMask) >> (SubgroupIndex - 1);
-	}
+    static unsigned int GetSubgroup(ListNode* node) {
+        return ((uintptr_t)node->Next&  SubgroupMask) >> (SubgroupIndex - 1);
+    }
 
-	static void SetSubgroup(ListNode* node, unsigned int value) {
-		node->Next = reinterpret_cast<ListNode*>(((uintptr_t)node->Next&  ~SubgroupMask) |
-												   (uintptr_t)value << (SubgroupIndex - 1));
-	}
+    static void SetSubgroup(ListNode* node, unsigned int value) {
+        node->Next = reinterpret_cast<ListNode*>(((uintptr_t)node->Next&  ~SubgroupMask) |
+                                                   (uintptr_t)value << (SubgroupIndex - 1));
+    }
 };
 
 
 // Policy used with large groups on 32 bit systems.
 struct LargeNodePolicy32 {
-	inline static ListNode32* GetNext(ListNode32* node) {
-		return node->Next;
-	}
+    inline static ListNode32* GetNext(ListNode32* node) {
+        return node->Next;
+    }
 
-	inline static void SetNext(ListNode32* node, ListNode32* next) {
-		node->Next = next;
-	}
+    inline static void SetNext(ListNode32* node, ListNode32* next) {
+        node->Next = next;
+    }
 
-	inline static ListNode32* GetPrevious(ListNode32* node) {
-		return node->Previous;
-	}
+    inline static ListNode32* GetPrevious(ListNode32* node) {
+        return node->Previous;
+    }
 
-	inline static void SetPrevious(ListNode32* node, ListNode32* previous) {
-		node->Previous = previous;
-	}
+    inline static void SetPrevious(ListNode32* node, ListNode32* previous) {
+        node->Previous = previous;
+    }
 
-	inline static unsigned int GetType(ListNode32* node) {
-		return node->Type;
-	}
+    inline static unsigned int GetType(ListNode32* node) {
+        return node->Type;
+    }
 
-	inline static void SetType(ListNode32* node) {
-		node->Type = 1;
-	}
+    inline static void SetType(ListNode32* node) {
+        node->Type = 1;
+    }
 
-	inline static void ResetType(ListNode32* node) {
-		node->Type = 0;
-	}
+    inline static void ResetType(ListNode32* node) {
+        node->Type = 0;
+    }
 
-	inline static unsigned int GetSubgroup(ListNode32* node) {
-		return node->Subgroup;
-	}
+    inline static unsigned int GetSubgroup(ListNode32* node) {
+        return node->Subgroup;
+    }
 
-	inline static void SetSubgroup(ListNode32* node, unsigned int value) {
-		node->Subgroup = value;
-	}
+    inline static void SetSubgroup(ListNode32* node, unsigned int value) {
+        node->Subgroup = value;
+    }
 };
 
 
@@ -183,17 +183,17 @@ struct LargeNodePolicy32 {
 template <class NodeType = ListNode, class NodePolicy = DefaultNodePolicy>
 class ObjectList {
 protected:
-	typedef typename NodePolicy Policy;
-	typedef typename NodeType Node;
+    typedef typename NodePolicy Policy;
+    typedef typename NodeType Node;
 
-	NodeType* first_;
-	NodeType* last_;
-	unsigned int count_;
+    NodeType* first_;
+    NodeType* last_;
+    unsigned int count_;
 
 public:
-	ObjectList() : first_(nullptr), last_(nullptr), count_(0) { }
+    ObjectList() : first_(nullptr), last_(nullptr), count_(0) { }
 
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     NodeType* First() {
         return first_;
     }
@@ -207,116 +207,116 @@ public:
     }
 
     // Adds the specified node as the first in the list.
-	void AddFirst(NodeType* node) {
-		// Add to the front of the list.
-		if(first_ == nullptr) {
-			first_ = last_ = node;
-			NodePolicy::SetNext(node, nullptr);
-			NodePolicy::SetPrevious(node, nullptr);
-		}
-		else {
-			NodePolicy::SetPrevious(node, nullptr);
-			NodePolicy::SetNext(node, first_);
-			NodePolicy::SetPrevious(first_, node);
-			first_ = node;
-		}
+    void AddFirst(NodeType* node) {
+        // Add to the front of the list.
+        if(first_ == nullptr) {
+            first_ = last_ = node;
+            NodePolicy::SetNext(node, nullptr);
+            NodePolicy::SetPrevious(node, nullptr);
+        }
+        else {
+            NodePolicy::SetPrevious(node, nullptr);
+            NodePolicy::SetNext(node, first_);
+            NodePolicy::SetPrevious(first_, node);
+            first_ = node;
+        }
 
-		count_++;
-	}
-	
+        count_++;
+    }
+    
     // Removes and returns the first node in the list,
     // or returns 'nullptr' if the list is empty.
-	NodeType* RemoveFirst() {
-		if(count_ > 0) {
-			NodeType* node = first_;
-			first_ = NodePolicy::GetNext(first_);
+    NodeType* RemoveFirst() {
+        if(count_ > 0) {
+            NodeType* node = first_;
+            first_ = NodePolicy::GetNext(first_);
 
-			if(first_ != nullptr)	{
-				NodePolicy::SetPrevious(first_, nullptr);
-			}
-			else last_ = nullptr;
+            if(first_ != nullptr)	{
+                NodePolicy::SetPrevious(first_, nullptr);
+            }
+            else last_ = nullptr;
 
-			count_--;
-			return node;
-		}
+            count_--;
+            return node;
+        }
 
-		return nullptr;
-	}
+        return nullptr;
+    }
 
     // Adds the specified node as the last in the list.
-	void AddLast(NodeType* node) {
-		NodePolicy::SetNext(node, nullptr);
-		NodePolicy::SetPrevious(node, last_);
+    void AddLast(NodeType* node) {
+        NodePolicy::SetNext(node, nullptr);
+        NodePolicy::SetPrevious(node, last_);
 
-		if(first_ == nullptr) {
-			first_ = node;
-		}
-		else NodePolicy::SetNext(last_, node);
+        if(first_ == nullptr) {
+            first_ = node;
+        }
+        else NodePolicy::SetNext(last_, node);
 
-		last_ = node;
-		count_++;
-	}
+        last_ = node;
+        count_++;
+    }
 
     // Removes and returns the last node in the list,
     // or returns 'nullptr' if the list is empty.
-	NodeType* RemoveLast() {
-		NodeType* node = nullptr;
+    NodeType* RemoveLast() {
+        NodeType* node = nullptr;
 
-		if(count_ > 0) {
-			node = last_;
+        if(count_ > 0) {
+            node = last_;
 
-			if(first_ == last_) {
-				first_ = last_ = nullptr;
-			}
-			else {
-				NodeType* newLast = NodePolicy::GetPrevious(last_);
-				NodePolicy::SetNext(newLast, nullptr);
-				last_ = newLast;
-			}
+            if(first_ == last_) {
+                first_ = last_ = nullptr;
+            }
+            else {
+                NodeType* newLast = NodePolicy::GetPrevious(last_);
+                NodePolicy::SetNext(newLast, nullptr);
+                last_ = newLast;
+            }
 
-			count_--;
-			return node;
-		}
+            count_--;
+            return node;
+        }
 
-		return node;
-	}
+        return node;
+    }
 
     // Adds the specified node after the first one.
-	void AddAfter(NodeType* firstNode, NodeType* node) {
-		NodeType* firstNext = NodePolicy::GetNext(firstNode);
-		NodePolicy::SetPrevious(node, firstNode);
-		NodePolicy::SetNext(node, firstNext);
+    void AddAfter(NodeType* firstNode, NodeType* node) {
+        NodeType* firstNext = NodePolicy::GetNext(firstNode);
+        NodePolicy::SetPrevious(node, firstNode);
+        NodePolicy::SetNext(node, firstNext);
 
-		if(firstNext == nullptr) {
-			last_ = node;
-		}
-		else NodePolicy::SetPrevious(firstNext, node);
+        if(firstNext == nullptr) {
+            last_ = node;
+        }
+        else NodePolicy::SetPrevious(firstNext, node);
 
-		NodePolicy::SetNext(firstNode, node);
-		count_++;
-	}
+        NodePolicy::SetNext(firstNode, node);
+        count_++;
+    }
 
     // Removes the specified node from the list.
-	void Remove(NodeType* node) {
-		NodeType* nodeNext = NodePolicy::GetNext(node);
-		NodeType* nodePrevious = NodePolicy::GetPrevious(node);
-		
-		if(nodePrevious == nullptr) {
-			first_ = nodeNext;
-		}
-		else NodePolicy::SetNext(nodePrevious, nodeNext);
+    void Remove(NodeType* node) {
+        NodeType* nodeNext = NodePolicy::GetNext(node);
+        NodeType* nodePrevious = NodePolicy::GetPrevious(node);
+        
+        if(nodePrevious == nullptr) {
+            first_ = nodeNext;
+        }
+        else NodePolicy::SetNext(nodePrevious, nodeNext);
 
-		if(nodeNext == nullptr) {
-			last_ = nodePrevious;
-		}
-		else NodePolicy::SetPrevious(nodeNext, nodePrevious);
+        if(nodeNext == nullptr) {
+            last_ = nodePrevious;
+        }
+        else NodePolicy::SetPrevious(nodeNext, nodePrevious);
 
-		count_--;
-	}
+        count_--;
+    }
 
-	int Count() {
-		return count_;
-	}
+    int Count() {
+        return count_;
+    }
 };
 #pragma pack(pop)
 
@@ -325,32 +325,32 @@ public:
 // based on the size of a pointer (32 or 64 bit).
 template <unsigned int N = 0, bool Large = false> // Default case.
 struct ListTraits {
-	typedef ListNode          NodeType;
-	typedef DefaultNodePolicy PolicyType;
+    typedef ListNode          NodeType;
+    typedef DefaultNodePolicy PolicyType;
 };
 
 template <>
 struct ListTraits<4, false> {            // 32 bits, small groups.
-	typedef ListNode32        NodeType;
-	typedef LargeNodePolicy32 PolicyType;
+    typedef ListNode32        NodeType;
+    typedef LargeNodePolicy32 PolicyType;
 };
 
 template <>
 struct ListTraits<4, true> {             // 32 bits, large groups.
-	typedef ListNode32        NodeType;
-	typedef LargeNodePolicy32 PolicyType;
+    typedef ListNode32        NodeType;
+    typedef LargeNodePolicy32 PolicyType;
 };
 
 template <>
 struct ListTraits<8, true> {             // 64 bits, large groups.
-	typedef ListNode        NodeType;
-	typedef LargeNodePolicy PolicyType;
+    typedef ListNode        NodeType;
+    typedef LargeNodePolicy PolicyType;
 };
 
 template <>
 struct ListTraits<9, true> {             // Used for testing.
-	typedef ListNode        NodeType;
-	typedef LargeNodePolicy PolicyType;
+    typedef ListNode        NodeType;
+    typedef LargeNodePolicy PolicyType;
 };
 
 typedef ListTraits<sizeof(void*), false> SmallTraits;

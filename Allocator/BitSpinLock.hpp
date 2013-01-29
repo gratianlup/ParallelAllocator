@@ -11,11 +11,11 @@
 // disclaimer in the documentation and/or other materials provided
 // with the distribution.
 //
-// * The name "DocumentClustering" must not be used to endorse or promote
+// * The name "ParallelAllocator" must not be used to endorse or promote
 // products derived from this software without prior written permission.
 //
-// * Products derived from this software may not be called "DocumentClustering" nor
-// may "DocumentClustering" appear in their names without prior written
+// * Products derived from this software may not be called "ParallelAllocator" nor
+// may "ParallelAllocator" appear in their names without prior written
 // permission of the author.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -50,173 +50,173 @@ namespace Base {
 template <class T, unsigned int Index>
 class BitSpinLock {
 public:
-	// Implements the atomic operations, based on the integer type.
-	template<class Type> // Gives a compiler error if an invalid type is used.
-	struct AtomicSelector;
+    // Implements the atomic operations, based on the integer type.
+    template<class Type> // Gives a compiler error if an invalid type is used.
+    struct AtomicSelector;
 
-	template <>
-	struct AtomicSelector<unsigned short> {
-		static short CompareExchange(volatile unsigned short* location, 
-									 unsigned short value, 
+    template <>
+    struct AtomicSelector<unsigned short> {
+        static short CompareExchange(volatile unsigned short* location, 
+                                     unsigned short value, 
                                      unsigned short comparand) {
             return Atomic::CompareExchange16(location, value, comparand);
-		}
-	};
+        }
+    };
 
-	template <>
-	struct AtomicSelector<unsigned int>	{
-		static unsigned int CompareExchange(volatile unsigned int* location, 
-											unsigned int value, 
+    template <>
+    struct AtomicSelector<unsigned int>	{
+        static unsigned int CompareExchange(volatile unsigned int* location, 
+                                            unsigned int value, 
                                             unsigned int comparand)	{
-			return Atomic::CompareExchange(location, value, comparand);
-		}
-	};
+            return Atomic::CompareExchange(location, value, comparand);
+        }
+    };
 
-	template <>
-	struct AtomicSelector<unsigned __int64> {
-		static unsigned __int64 CompareExchange(volatile unsigned __int64* location, 
-												unsigned __int64 value, 
+    template <>
+    struct AtomicSelector<unsigned __int64> {
+        static unsigned __int64 CompareExchange(volatile unsigned __int64* location, 
+                                                unsigned __int64 value, 
                                                 unsigned __int64 comparand) {
-			return Atomic::CompareExchange64(location, value, comparand);
-		}
-	};
+            return Atomic::CompareExchange64(location, value, comparand);
+        }
+    };
 
-	// Verifies whether the a type is an accepted one (signed/unsigned integer).
-	template <class U>
-	struct TypeValidator {
-		template<class V>
-		struct ValidType { enum { Valid = false }; };
+    // Verifies whether the a type is an accepted one (signed/unsigned integer).
+    template <class U>
+    struct TypeValidator {
+        template<class V>
+        struct ValidType { enum { Valid = false }; };
 
-		template<> struct ValidType<short>   { enum { Valid = true }; };
-		template<> struct ValidType<int>     { enum { Valid = true }; };
-		template<> struct ValidType<__int64> { enum { Valid = true }; };
+        template<> struct ValidType<short>   { enum { Valid = true }; };
+        template<> struct ValidType<int>     { enum { Valid = true }; };
+        template<> struct ValidType<__int64> { enum { Valid = true }; };
 
-		template<> struct ValidType<unsigned short>   { enum { Valid = true }; };
-		template<> struct ValidType<unsigned int>     { enum { Valid = true }; };
-		template<> struct ValidType<unsigned __int64> { enum { Valid = true }; };
+        template<> struct ValidType<unsigned short>   { enum { Valid = true }; };
+        template<> struct ValidType<unsigned int>     { enum { Valid = true }; };
+        template<> struct ValidType<unsigned __int64> { enum { Valid = true }; };
 
-		enum { Valid = ValidType<U>::Valid };
-	};
+        enum { Valid = ValidType<U>::Valid };
+    };
 
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-	static const T DataMask = ((((T)1 << (sizeof(T) * 8)) - 1)) - ((T)1 << Index); // 11101...111
-	static const T LockMask = ~DataMask;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    static const T DataMask = ((((T)1 << (sizeof(T) * 8)) - 1)) - ((T)1 << Index); // 11101...111
+    static const T LockMask = ~DataMask;
     static const T LowPartMask = ((T)1 << Index) - 1;
     static const T HighPartMask =  ((((T)1 << (sizeof(T) * 8)) - 1)) - 
                                    (((T)1 << (Index + 1)) - 1);
     T lockValue_;
 
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-	bool IsLockedSet(T value) { return (value & LockMask);   }
-	T SetLocked(T value)      { return (value |= LockMask);  }
-	T ResetLocked(T value)    { return (value &= ~LockMask); }
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    bool IsLockedSet(T value) { return (value & LockMask);   }
+    T SetLocked(T value)      { return (value |= LockMask);  }
+    T ResetLocked(T value)    { return (value &= ~LockMask); }
 
 public:
-	BitSpinLock(T initialValue) : lockValue_(initialValue) {
-		StaticAssert<TypeValidator<T>::Valid>();
-		StaticAssert<Index<(sizeof(T) * 8)>();
-	}
+    BitSpinLock(T initialValue) : lockValue_(initialValue) {
+        StaticAssert<TypeValidator<T>::Valid>();
+        StaticAssert<Index<(sizeof(T) * 8)>();
+    }
 
-	BitSpinLock() : lockValue_(0) {
-		StaticAssert<TypeValidator<T>::Valid>();
-		StaticAssert<Index<(sizeof(T) * 8)>();
-	}
+    BitSpinLock() : lockValue_(0) {
+        StaticAssert<TypeValidator<T>::Valid>();
+        StaticAssert<Index<(sizeof(T) * 8)>();
+    }
 
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-	// Waits until the lock could be successfully acquired.
-	void Lock() {
-		T oldValue = lockValue_;
-		T newValue = SetLocked(oldValue);
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    // Waits until the lock could be successfully acquired.
+    void Lock() {
+        T oldValue = lockValue_;
+        T newValue = SetLocked(oldValue);
 
         // In order to properly acquire the lock, it should be released.
-		oldValue = ResetLocked(oldValue);
+        oldValue = ResetLocked(oldValue);
 
-		if(lockValue_ != newValue) {
-			ThreadUtils::SwitchToThread();
-		}
-
-		while((newValue = AtomicSelector<T>::CompareExchange(&lockValue_, newValue, 
-                                                             oldValue)) != oldValue) {
-			oldValue = newValue;
-			newValue = SetLocked(oldValue);
-			oldValue = ResetLocked(oldValue);
-			ThreadUtils::Wait();
-		}
-	}
-
-	// Releases the lock.
-	void Unlock() {
-        T oldValue = lockValue_;
-		T newValue = ResetLocked(oldValue);
-
-		while((newValue = AtomicSelector<T>::CompareExchange(&lockValue_, newValue, 
-                                                             oldValue)) != oldValue) {
-			oldValue = newValue;
-			newValue = ResetLocked(oldValue);
-		}
-	}
-
-	// Extracts the low part (from LSB to the lock bit).
-	T GetLowPart() {
-		// Extracts the low part of the lock value (not including the lock bit).
-		return Memory::ReadValue(&lockValue_) & LowPartMask;
-	}
-
-	// Sets the low part (from LSB to the lock bit) to the specified value.
-    void SetLowPart(T value) {
-        T oldValue = lockValue_;
-        T newValue = (oldValue&  ~LowPartMask) | value;
+        if(lockValue_ != newValue) {
+            ThreadUtils::SwitchToThread();
+        }
 
         while((newValue = AtomicSelector<T>::CompareExchange(&lockValue_, newValue, 
                                                              oldValue)) != oldValue) {
             oldValue = newValue;
-            newValue = (oldValue&  ~LowPartMask) | value;
+            newValue = SetLocked(oldValue);
+            oldValue = ResetLocked(oldValue);
+            ThreadUtils::Wait();
         }
     }
 
-	// Increments the low part (from LSB to the lock bit) with the specified value.
-	void AddLowPart(T value) {
-		T oldValue = lockValue_;
-		T newValue = (oldValue&  ~LowPartMask) | ((oldValue&  LowPartMask) + value);
+    // Releases the lock.
+    void Unlock() {
+        T oldValue = lockValue_;
+        T newValue = ResetLocked(oldValue);
 
-		while((newValue = AtomicSelector<T>::CompareExchange(&lockValue_, newValue, 
+        while((newValue = AtomicSelector<T>::CompareExchange(&lockValue_, newValue, 
                                                              oldValue)) != oldValue) {
-			oldValue = newValue;
-			newValue = (oldValue&  ~LowPartMask) | ((oldValue&  LowPartMask) + value);
-		}
-	}
+            oldValue = newValue;
+            newValue = ResetLocked(oldValue);
+        }
+    }
 
-	// Extracts the low part (from LSB to the lock bit).
-	T GetHighPart() {
-		// Extracts the low part of the lock value (not including the lock bit).
-		return Memory::ReadValue(&lockValue_) & HighPartMask;
-	}
+    // Extracts the low part (from LSB to the lock bit).
+    T GetLowPart() {
+        // Extracts the low part of the lock value (not including the lock bit).
+        return Memory::ReadValue(&lockValue_) & LowPartMask;
+    }
 
-	// Sets the low part (from LSB to the lock bit) to the specified value.
-	void SetHighPart(T value) {
-		T oldValue = lockValue_;
-		T newValue = (oldValue&  ~HighPartMask) | (value << (Index + 1));
+    // Sets the low part (from LSB to the lock bit) to the specified value.
+    void SetLowPart(T value) {
+        T oldValue = lockValue_;
+        T newValue = (oldValue & ~LowPartMask) | value;
 
-		while((newValue = AtomicSelector<T>::CompareExchange(&lockValue_, newValue, 
+        while((newValue = AtomicSelector<T>::CompareExchange(&lockValue_, newValue, 
                                                              oldValue)) != oldValue) {
-			oldValue = newValue;
-			newValue = (oldValue&  ~HighPartMask) | (value << Index);
-		}
-	}
+            oldValue = newValue;
+            newValue = (oldValue & ~LowPartMask) | value;
+        }
+    }
 
-	// Increments the low part (from LSB to the lock bit) with the specified value.
-	void AddHighPart(T value) {
-		T oldValue = lockValue_;
-		T newValue = (oldValue&  ~HighPartMask) | 
-                     ((((oldValue&  HighPartMask) >> (Index + 1)) + value) << (Index + 1));
+    // Increments the low part (from LSB to the lock bit) with the specified value.
+    void AddLowPart(T value) {
+        T oldValue = lockValue_;
+        T newValue = (oldValue & ~LowPartMask) | ((oldValue&  LowPartMask) + value);
 
-		while((newValue = AtomicSelector<T>::CompareExchange(&lockValue_, newValue, 
+        while((newValue = AtomicSelector<T>::CompareExchange(&lockValue_, newValue, 
                                                              oldValue)) != oldValue) {
-			oldValue = newValue;
-			newValue = (oldValue&  ~HighPartMask) | 
-                       ((((oldValue&  HighPartMask) >> Index) + value) << Index);
-		}
-	}
+            oldValue = newValue;
+            newValue = (oldValue & ~LowPartMask) | ((oldValue & LowPartMask) + value);
+        }
+    }
+
+    // Extracts the low part (from LSB to the lock bit).
+    T GetHighPart() {
+        // Extracts the low part of the lock value (not including the lock bit).
+        return Memory::ReadValue(&lockValue_) & HighPartMask;
+    }
+
+    // Sets the low part (from LSB to the lock bit) to the specified value.
+    void SetHighPart(T value) {
+        T oldValue = lockValue_;
+        T newValue = (oldValue & ~HighPartMask) | (value << (Index + 1));
+
+        while((newValue = AtomicSelector<T>::CompareExchange(&lockValue_, newValue, 
+                                                             oldValue)) != oldValue) {
+            oldValue = newValue;
+            newValue = (oldValue & ~HighPartMask) | (value << Index);
+        }
+    }
+
+    // Increments the low part (from LSB to the lock bit) with the specified value.
+    void AddHighPart(T value) {
+        T oldValue = lockValue_;
+        T newValue = (oldValue & ~HighPartMask) | 
+                     ((((oldValue & HighPartMask) >> (Index + 1)) + value) << (Index + 1));
+
+        while((newValue = AtomicSelector<T>::CompareExchange(&lockValue_, newValue, 
+                                                             oldValue)) != oldValue) {
+            oldValue = newValue;
+            newValue = (oldValue & ~HighPartMask) | 
+                       ((((oldValue & HighPartMask) >> Index) + value) << Index);
+        }
+    }
 };
 
 
@@ -224,7 +224,7 @@ public:
 template <class T, unsigned int Index>
 class BSLHolder {
 private:
-	BitSpinLock<T, Index>* lock_;
+    BitSpinLock<T, Index>* lock_;
 
 public:
     BSLHolder(BitSpinLock<T, Index>* bitLock) : lock_(bitLock) {}

@@ -11,11 +11,11 @@
 // disclaimer in the documentation and/or other materials provided
 // with the distribution.
 //
-// * The name "DocumentClustering" must not be used to endorse or promote
+// * The name "ParallelAllocator" must not be used to endorse or promote
 // products derived from this software without prior written permission.
 //
-// * Products derived from this software may not be called "DocumentClustering" nor
-// may "DocumentClustering" appear in their names without prior written
+// * Products derived from this software may not be called "ParallelAllocator" nor
+// may "ParallelAllocator" appear in their names without prior written
 // permission of the author.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -43,52 +43,52 @@ namespace Base {
 template <class SmallBAType, class LargeBAType>
 class BasicMemory {
 public:
-	void* AllocateMemory(size_t size, unsigned int prefferedNode) {
-		return Memory::Allocate(size);
-	}
+    void* AllocateMemory(size_t size, unsigned int prefferedNode) {
+        return Memory::Allocate(size);
+    }
 
-	void DeallocateMemory(void* address, unsigned int prefferedNode) {
-		Memory::Deallocate(address);
-	}
+    void DeallocateMemory(void* address, unsigned int prefferedNode) {
+        Memory::Deallocate(address);
+    }
 
-	unsigned int GetCurrentCpu() { 
-		return ThreadUtils::GetCurrentCPUNumber(); 
-	}
+    unsigned int GetCurrentCpu() { 
+        return ThreadUtils::GetCurrentCPUNumber(); 
+    }
 
-	unsigned int GetCpuNumber() {
-		return ThreadUtils::GetCpuNumber(); 
-	}
+    unsigned int GetCpuNumber() {
+        return ThreadUtils::GetCpuNumber(); 
+    }
 
-	template <class T>
-	void* GetGroup(unsigned int currentCpu, unsigned int currentThreadId) { 
+    template <class T>
+    void* GetGroup(unsigned int currentCpu, unsigned int currentThreadId) { 
         return nullptr; 
     }
 
-	template <class T>
-	void ReturnGroup(void* group, unsigned int parentCpu) { }
+    template <class T>
+    void ReturnGroup(void* group, unsigned int parentCpu) { }
 
-	template <class T>
-	void SetBlockAllocator(void* allocator, unsigned int cpuIndex) { }
+    template <class T>
+    void SetBlockAllocator(void* allocator, unsigned int cpuIndex) { }
 
-	template <class T>
-	void BlockAvailable(unsigned int cpuIndex) { }
+    template <class T>
+    void BlockAvailable(unsigned int cpuIndex) { }
 
-	template <class T>
-	void BlockUnavailable(unsigned int cpuIndex) { };
+    template <class T>
+    void BlockUnavailable(unsigned int cpuIndex) { };
 
-	unsigned int GetCpuNode(unsigned int cpuIndex) { 
+    unsigned int GetCpuNode(unsigned int cpuIndex) { 
         return 0; 
     }
 
-	bool IsNuma() { 
+    bool IsNuma() { 
         return false; 
     }
 
-	unsigned int GetNodeNumber() { 
+    unsigned int GetNodeNumber() { 
         return 0; 
     }
 
-	void Initialize() { }
+    void Initialize() { }
 };
 
 } // namespace Base

@@ -11,11 +11,11 @@
 // disclaimer in the documentation and/or other materials provided
 // with the distribution.
 //
-// * The name "DocumentClustering" must not be used to endorse or promote
+// * The name "ParallelAllocator" must not be used to endorse or promote
 // products derived from this software without prior written permission.
 //
-// * Products derived from this software may not be called "DocumentClustering" nor
-// may "DocumentClustering" appear in their names without prior written
+// * Products derived from this software may not be called "ParallelAllocator" nor
+// may "ParallelAllocator" appear in their names without prior written
 // permission of the author.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -38,7 +38,7 @@
 #include "Bitmap.hpp"
 
 #if defined(PLATFORM_WINDOWS)
-	#include <intrin.h>
+    #include <intrin.h>
 #endif
 
 namespace Base {
@@ -52,140 +52,140 @@ extern "C" void ReallocSSE2_B64(void* src, void* dst, int size);
 
 
 struct ReallocX86 {
-	static void Realloc(void* source, void* destination, unsigned int size) {
-		char* srcPtr = (char*)source;
-		char* dstPtr = (char*)destination;
-		char* srcEndPtr = srcPtr + size;
+    static void Realloc(void* source, void* destination, unsigned int size) {
+        char* srcPtr = (char*)source;
+        char* dstPtr = (char*)destination;
+        char* srcEndPtr = srcPtr + size;
 
-		while(srcPtr < srcEndPtr) {
-			// Try to copy up to 128 bytes on each step.
-			unsigned int copySize;
+        while(srcPtr < srcEndPtr) {
+            // Try to copy up to 128 bytes on each step.
+            unsigned int copySize;
 
-			if(size >= 128) { 
+            if(size >= 128) { 
                 copySize = 128; 
             }
-			else if(size >= 64) { 
+            else if(size >= 64) { 
                 copySize = 64;  
             }
-			else if(size >= 32) { 
+            else if(size >= 32) { 
                 copySize = 32;  
             }
-			else if(size >= 16) { 
+            else if(size >= 16) { 
                 copySize = 16;  
             }
-			else {
-				// Copy only 4 bytes.
-				*((int*)dstPtr) = *((int*)srcPtr);
-				srcPtr += 4;
-				dstPtr += 4;
-				size -= 4;
-				continue;
-			}
+            else {
+                // Copy only 4 bytes.
+                *((int*)dstPtr) = *((int*)srcPtr);
+                srcPtr += 4;
+                dstPtr += 4;
+                size -= 4;
+                continue;
+            }
 
-			ReallocX86_16(srcPtr, dstPtr, copySize);
-			srcPtr += copySize;
-			dstPtr += copySize;
-			size -= copySize;
-		}
-	}
+            ReallocX86_16(srcPtr, dstPtr, copySize);
+            srcPtr += copySize;
+            dstPtr += copySize;
+            size -= copySize;
+        }
+    }
 };
 
 
 struct ReallocSSE {
-	static void Realloc(void* source, void* destination, unsigned int size) {
-		char* srcPtr = (char*)source;
-		char* dstPtr = (char*)destination;
-		char* srcEndPtr = srcPtr + size;
+    static void Realloc(void* source, void* destination, unsigned int size) {
+        char* srcPtr = (char*)source;
+        char* dstPtr = (char*)destination;
+        char* srcEndPtr = srcPtr + size;
 
-		while(srcPtr < srcEndPtr) {
-			// Try to copy up to 256 bytes on each step.
-			unsigned int copySize;
+        while(srcPtr < srcEndPtr) {
+            // Try to copy up to 256 bytes on each step.
+            unsigned int copySize;
 
-			if(size >= 256) { 
+            if(size >= 256) { 
                 copySize = 256; 
             }
-			else if(size >= 64) { 
+            else if(size >= 64) { 
                 copySize = size; 
             }
-			else {
-				// Copy less than 64 bytes.
-				ReallocSSE_B64(srcPtr, dstPtr, size);
-				return;
-			}
-			
-			ReallocSSE_64(srcPtr, dstPtr, copySize);
-			srcPtr += copySize;
-			dstPtr += copySize;
-			size -= copySize;
-		}
-	}
+            else {
+                // Copy less than 64 bytes.
+                ReallocSSE_B64(srcPtr, dstPtr, size);
+                return;
+            }
+            
+            ReallocSSE_64(srcPtr, dstPtr, copySize);
+            srcPtr += copySize;
+            dstPtr += copySize;
+            size -= copySize;
+        }
+    }
 };
 
 
 struct ReallocSSE2 {
-	static void Realloc(void* source, void* destination, unsigned int size) {
-		char* srcPtr = (char*)source;
-		char* dstPtr = (char*)destination;
-		char* srcEndPtr = srcPtr + size;
+    static void Realloc(void* source, void* destination, unsigned int size) {
+        char* srcPtr = (char*)source;
+        char* dstPtr = (char*)destination;
+        char* srcEndPtr = srcPtr + size;
 
-		while(srcPtr < srcEndPtr) {
-			// Try to copy up to 256 bytes on each step.
-			unsigned int copySize;
+        while(srcPtr < srcEndPtr) {
+            // Try to copy up to 256 bytes on each step.
+            unsigned int copySize;
 
-			if(size >= 256) {
+            if(size >= 256) {
                 copySize = 256; 
             }
-			else if(size >= 64) { 
+            else if(size >= 64) { 
                 copySize = size; 
             }
-			else {
-				// Copy less than 64 bytes.
-				ReallocSSE2_B64(srcPtr, dstPtr, size);
-				return;
-			}
-			
-			ReallocSSE2_64(srcPtr, dstPtr, copySize);
-			srcPtr += copySize;
-			dstPtr += copySize;
-			size -= copySize;
-		}
-	}
+            else {
+                // Copy less than 64 bytes.
+                ReallocSSE2_B64(srcPtr, dstPtr, size);
+                return;
+            }
+            
+            ReallocSSE2_64(srcPtr, dstPtr, copySize);
+            srcPtr += copySize;
+            dstPtr += copySize;
+            size -= copySize;
+        }
+    }
 };
 
 
 struct Realloc {
-	typedef void (*REALLOC_FUNCTION)(void* src, void* dst, unsigned int size);
-	static REALLOC_FUNCTION ReallocImpl;
+    typedef void (*REALLOC_FUNCTION)(void* src, void* dst, unsigned int size);
+    static REALLOC_FUNCTION ReallocImpl;
 
-	static void Initialize() {
+    static void Initialize() {
         // Detect if there if SSE is supported and use
         // the optimized versions of the copy routines if possible.
-		bool hasSSE = false;
-		bool hasSSE2 = false;
+        bool hasSSE = false;
+        bool hasSSE2 = false;
 
 #if defined(PLATFORM_WINDOWS)
-		int cpuInfo[4];
-		__cpuid(cpuInfo, 1);
+        int cpuInfo[4];
+        __cpuid(cpuInfo, 1);
 
-		hasSSE  = (cpuInfo[3]&  (1 << 25)) != 0;
-		hasSSE2 = (cpuInfo[3]&  (1 << 26)) != 0;
+        hasSSE  = (cpuInfo[3]&  (1 << 25)) != 0;
+        hasSSE2 = (cpuInfo[3]&  (1 << 26)) != 0;
 #else
 #endif
 
-		if(hasSSE2) {
-			ReallocImpl = ReallocSSE2::Realloc;
-		}
-		else if(hasSSE) {
-			ReallocImpl = ReallocSSE::Realloc;
-		}
-		else {
-			ReallocImpl = ReallocX86::Realloc;
-		}
-	}
+        if(hasSSE2) {
+            ReallocImpl = ReallocSSE2::Realloc;
+        }
+        else if(hasSSE) {
+            ReallocImpl = ReallocSSE::Realloc;
+        }
+        else {
+            ReallocImpl = ReallocX86::Realloc;
+        }
+    }
 
-	static void Execute(void* source, void* destination, unsigned int size) {
-		ReallocImpl(source, destination, size);
-	}
+    static void Execute(void* source, void* destination, unsigned int size) {
+        ReallocImpl(source, destination, size);
+    }
 };
 
 Realloc::REALLOC_FUNCTION Realloc::ReallocImpl = nullptr;

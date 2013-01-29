@@ -11,11 +11,11 @@
 // disclaimer in the documentation and/or other materials provided
 // with the distribution.
 //
-// * The name "DocumentClustering" must not be used to endorse or promote
+// * The name "ParallelAllocator" must not be used to endorse or promote
 // products derived from this software without prior written permission.
 //
-// * Products derived from this software may not be called "DocumentClustering" nor
-// may "DocumentClustering" appear in their names without prior written
+// * Products derived from this software may not be called "ParallelAllocator" nor
+// may "ParallelAllocator" appear in their names without prior written
 // permission of the author.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -47,126 +47,126 @@ namespace Base {
 template <class T>
 class Stack {
 private:
-	typedef ListHead<T*> HeadType;
-	HeadType head_;
-	unsigned int time_;
-	unsigned int maxObjects_;
+    typedef ListHead<T*> HeadType;
+    HeadType head_;
+    unsigned int time_;
+    unsigned int maxObjects_;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	bool CompareExchange(HeadType& oldHead, HeadType& newHead) {
+    bool CompareExchange(HeadType& oldHead, HeadType& newHead) {
 #if defined(PLATFORM_32)
-		return Atomic::CompareExchange64((__int64*)&head_, (__int64)newHead, 
-										 (__int64)oldHead) == (__int64)oldHead;
+        return Atomic::CompareExchange64((__int64*)&head_, (__int64)newHead, 
+                                         (__int64)oldHead) == (__int64)oldHead;
 #else
-		return Atomic::CompareExchange128((__int64*)&head_,* (((__int64*)&newHead) + 1),
-										 * ((__int64*)&newHead), (__int64*)&oldHead) == 1;
+        return Atomic::CompareExchange128((__int64*)&head_,* (((__int64*)&newHead) + 1),
+                                         * ((__int64*)&newHead), (__int64*)&oldHead) == 1;
 #endif
-	}
+    }
 
 public:
-	Stack() : head_(0), maxObjects_(0xFFFFFFFF) { }
-	Stack(int maxObjects) : head_(0), maxObjects_(maxObjects) { }
+    Stack() : head_(0), maxObjects_(0xFFFFFFFF) { }
+    Stack(int maxObjects) : head_(0), maxObjects_(maxObjects) { }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	// Tries to insert an object in the stack.
-	// If the maximum number of objects is reached, the object 
+    // Tries to insert an object in the stack.
+    // If the maximum number of objects is reached, the object 
     // isn't inserted anymore and the method returns the address of the object.
-	// If the object could be inserted, the method returns nullptr.
-	T* Push(T* node) {
-		int waitCount = 0; // Used for back off.
-		time_ = ThreadUtils::GetSystemTime();
+    // If the object could be inserted, the method returns nullptr.
+    T* Push(T* node) {
+        int waitCount = 0; // Used for back off.
+        time_ = ThreadUtils::GetSystemTime();
 
-		while(true) {
-			HeadType oldHead = Memory::ReadValue(&head_);
+        while(true) {
+            HeadType oldHead = Memory::ReadValue(&head_);
 
-			if(oldHead.GetCount() >= maxObjects_) {
-				return node; // The stack has reached the maximum number of objects.
-			}
+            if(oldHead.GetCount() >= maxObjects_) {
+                return node; // The stack has reached the maximum number of objects.
+            }
 
-			// Set the new head of the stack and update the oldest location.
-			HeadType newHead = HeadType(oldHead.GetCount() + 1, node);
+            // Set the new head of the stack and update the oldest location.
+            HeadType newHead = HeadType(oldHead.GetCount() + 1, node);
 
             // Is 'head' still the same?
-			if(oldHead == Memory::ReadValue(&head_)) {
+            if(oldHead == Memory::ReadValue(&head_)) {
                 // Link the node to the current head of the stack.
-				node->Next = oldHead.GetFirst();
+                node->Next = oldHead.GetFirst();
 
-				if(CompareExchange(oldHead, newHead)) {
-					T* temp = newHead.GetFirst();
-					temp->Next = temp->Next;
-					return nullptr; // The head was successfully updated.
-				}
-			}
+                if(CompareExchange(oldHead, newHead)) {
+                    T* temp = newHead.GetFirst();
+                    temp->Next = temp->Next;
+                    return nullptr; // The head was successfully updated.
+                }
+            }
 
-			if((++waitCount % 50) == 0) {
-				// Give threads with a lower priority a chance to run.
-				ThreadUtils::SwitchToThread();
-			}
-			else {
-				// Back off.
-				for(int i = 0; i < waitCount; i++) {
-					ThreadUtils::Wait();
-				}
-			}
-		}
-	}
+            if((++waitCount % 50) == 0) {
+                // Give threads with a lower priority a chance to run.
+                ThreadUtils::SwitchToThread();
+            }
+            else {
+                // Back off.
+                for(int i = 0; i < waitCount; i++) {
+                    ThreadUtils::Wait();
+                }
+            }
+        }
+    }
 
-	// Tries to extract the top object of the stack.
-	// If the stack is empty, the method returns nullptr.
-	T* Pop() {
+    // Tries to extract the top object of the stack.
+    // If the stack is empty, the method returns nullptr.
+    T* Pop() {
         T* node;
-		int waitCount = 0; // Used for back off.
-		time_ = ThreadUtils::GetSystemTime();
+        int waitCount = 0; // Used for back off.
+        time_ = ThreadUtils::GetSystemTime();
 
-		while(true) {
-			HeadType oldHead = Memory::ReadValue(&head_);
-			node = oldHead.GetFirst();
+        while(true) {
+            HeadType oldHead = Memory::ReadValue(&head_);
+            node = oldHead.GetFirst();
 
-			if(node == nullptr) {
-				return nullptr; // The stack is empty;
-			}
+            if(node == nullptr) {
+                return nullptr; // The stack is empty;
+            }
 
             // Is 'head' still the same?
-			if(oldHead == Memory::ReadValue(&head_)) {
-				HeadType newHead = HeadType(oldHead.GetCount() - 1, node->Next);
+            if(oldHead == Memory::ReadValue(&head_)) {
+                HeadType newHead = HeadType(oldHead.GetCount() - 1, node->Next);
 
-				if(CompareExchange(oldHead, newHead)) {
-					return node; // The head was successfully updated.
-				}
-			}
+                if(CompareExchange(oldHead, newHead)) {
+                    return node; // The head was successfully updated.
+                }
+            }
 
-			if((++waitCount % 50) == 0) {
-				// Give threads with a lower priority a chance to run.
-				ThreadUtils::SwitchToThread();
-			}
-			else {
-				// Backoff.
-				for(int i = 0; i < waitCount; i++) {
-					ThreadUtils::Wait();
-				}
-			}
-		}
-	}
+            if((++waitCount % 50) == 0) {
+                // Give threads with a lower priority a chance to run.
+                ThreadUtils::SwitchToThread();
+            }
+            else {
+                // Backoff.
+                for(int i = 0; i < waitCount; i++) {
+                    ThreadUtils::Wait();
+                }
+            }
+        }
+    }
 
-	T* Peek() {
-		return head_.GetFirst();
-	}
+    T* Peek() {
+        return head_.GetFirst();
+    }
 
-	int Count() {
-		return Memory::ReadValue(&head_).GetCount();
-	}
+    int Count() {
+        return Memory::ReadValue(&head_).GetCount();
+    }
 
-	int OldestTime() {
-		return time_;
-	}
+    int OldestTime() {
+        return time_;
+    }
 
-	int MaxObjects() {
-		return maxObjects_; 
-	}
+    int MaxObjects() {
+        return maxObjects_; 
+    }
 
-	void SetMaxObjects(int value) { 
-		maxObjects_ =  value; 
-	}
+    void SetMaxObjects(int value) { 
+        maxObjects_ =  value; 
+    }
 };
 
 #else
@@ -175,49 +175,49 @@ public:
 template <class T>
 class Stack {
 private:
-	FreeObjectList<> list_;
-	unsigned int time_;
+    FreeObjectList<> list_;
+    unsigned int time_;
 
 public:
-	Stack() : list_(FreeObjectList<>(0xFFFFFFF)), time_(0x7FFFFFFF) {}
-	Stack(unsigned int maxObj) : list_(FreeObjectList<>(maxObj)), time_(0x7FFFFFFF) {}
+    Stack() : list_(FreeObjectList<>(0xFFFFFFF)), time_(0x7FFFFFFF) {}
+    Stack(unsigned int maxObj) : list_(FreeObjectList<>(maxObj)), time_(0x7FFFFFFF) {}
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	// Tries to insert an object in the stack.
-	// If the maximum number of objects is reached, the object 
+    // Tries to insert an object in the stack.
+    // If the maximum number of objects is reached, the object 
     // isn't inserted anymore and the method returns the address of the object.
-	// If the object could be inserted, the method returns nullptr.
-	T Push(T node) {
-		time_ = ThreadUtils::GetSystemTime();
-		return reinterpret_cast<T>(list_.AddObject(node));
-	}
+    // If the object could be inserted, the method returns nullptr.
+    T Push(T node) {
+        time_ = ThreadUtils::GetSystemTime();
+        return reinterpret_cast<T>(list_.AddObject(node));
+    }
 
-	// Tries to extract the top object of the stack.
-	// If the stack is empty, the method returns nullptr.
-	T Pop() {
-		time_ = ThreadUtils::GetSystemTime();
-		return reinterpret_cast<T>(list_.RemoveFirst());
-	}
+    // Tries to extract the top object of the stack.
+    // If the stack is empty, the method returns nullptr.
+    T Pop() {
+        time_ = ThreadUtils::GetSystemTime();
+        return reinterpret_cast<T>(list_.RemoveFirst());
+    }
 
-	T Peek() {
-		return nullptr;
-	}
+    T Peek() {
+        return nullptr;
+    }
 
-	unsigned int Count() {
-		return list_.GetCount();
-	}
+    unsigned int Count() {
+        return list_.GetCount();
+    }
 
-	unsigned int OldestTime() {
-		return time_;
-	}
+    unsigned int OldestTime() {
+        return time_;
+    }
 
-	unsigned int MaxObjects() {
-		return list_.GetMaxObjects();
-	}
+    unsigned int MaxObjects() {
+        return list_.GetMaxObjects();
+    }
 
-	void SetMaxObjects(unsigned int value) { 
-		list_.SetMaxObjects(value);
-	}
+    void SetMaxObjects(unsigned int value) { 
+        list_.SetMaxObjects(value);
+    }
 };
 #endif
 

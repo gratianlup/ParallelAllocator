@@ -11,11 +11,11 @@
 // disclaimer in the documentation and/or other materials provided
 // with the distribution.
 //
-// * The name "DocumentClustering" must not be used to endorse or promote
+// * The name "ParallelAllocator" must not be used to endorse or promote
 // products derived from this software without prior written permission.
 //
-// * Products derived from this software may not be called "DocumentClustering" nor
-// may "DocumentClustering" appear in their names without prior written
+// * Products derived from this software may not be called "ParallelAllocator" nor
+// may "ParallelAllocator" appear in their names without prior written
 // permission of the author.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -39,8 +39,8 @@
 #include "ThreadUtils.hpp"
 
 #ifdef PLATFORM_WINDOWS
-	#include <Windows.h>
-	#include <intrin.h>
+    #include <Windows.h>
+    #include <intrin.h>
 #else
     static_assert(false, "Not yet implemented.");
 #endif
@@ -52,153 +52,153 @@ class Memory {
     // NUMA support.
     static const char* NAME_VIRTUAL_ALLOC_EX_NUMA;
     static VIRTUAL_ALLOC_EX_NUMA VirtualAllocExNumaFct;
-	typedef LPVOID (WINAPI* VIRTUAL_ALLOC_EX_NUMA)(HANDLE, LPVOID, SIZE_T, 
+    typedef LPVOID (WINAPI* VIRTUAL_ALLOC_EX_NUMA)(HANDLE, LPVOID, SIZE_T, 
                                                    DWORD, DWORD, DWORD);
 #endif
 
 public:
-	// Allocates the specified amount of bytes from virtual memory.
-	static void* Allocate(size_t size) {
-		Statistics::BlockAllocated();
+    // Allocates the specified amount of bytes from virtual memory.
+    static void* Allocate(size_t size) {
+        Statistics::BlockAllocated();
 
 #if defined(PLATFORM_WINDOWS)
-		return VirtualAlloc(nullptr, size, MEM_COMMIT, PAGE_READWRITE);
+        return VirtualAlloc(nullptr, size, MEM_COMMIT, PAGE_READWRITE);
 #else
-		static_assert(false, "Not yet implemented.");
+        static_assert(false, "Not yet implemented.");
 #endif
-	}
+    }
 
-	// Allocates the specified amount of bytes from virtual memory.
-	// Tries to allocate the memory from the specified NUMA node.
-	static void* AllocateNuma(size_t size, unsigned int prefferedNode) {
-		Statistics::BlockAllocated();
+    // Allocates the specified amount of bytes from virtual memory.
+    // Tries to allocate the memory from the specified NUMA node.
+    static void* AllocateNuma(size_t size, unsigned int prefferedNode) {
+        Statistics::BlockAllocated();
 
 #if defined(PLATFORM_WINDOWS)
-		if(VirtualAllocExNumaFct != nullptr) {
-			// Under Vista+, allocate using the special NUMA method.
-			return VirtualAllocExNuma(GetCurrentProcess(), nullptr, size,
+        if(VirtualAllocExNumaFct != nullptr) {
+            // Under Vista+, allocate using the special NUMA method.
+            return VirtualAllocExNuma(GetCurrentProcess(), nullptr, size,
                                       MEM_COMMIT, PAGE_READWRITE, prefferedNode);
-		}
-		else {
-			return VirtualAlloc(nullptr, size, MEM_COMMIT, PAGE_READWRITE);
-		}
-#else
-		static_assert(false, "Not yet implemented.");
-#endif
-	}
-
-	// Deallocates the data found at the given address.
-	static void Deallocate(void* address) {
-		Statistics::BlockDeallocated();
-
-#if defined(PLATFORM_WINDOWS)
-		VirtualFree(address, 0, MEM_RELEASE);
+        }
+        else {
+            return VirtualAlloc(nullptr, size, MEM_COMMIT, PAGE_READWRITE);
+        }
 #else
         static_assert(false, "Not yet implemented.");
 #endif
-	}
+    }
 
-	// Deallocates the data found at the given address (NUMA version).
-	static void DeallocateNuma(void* address, unsigned int prefferedNode) {
-		Statistics::BlockDeallocated();
-		
+    // Deallocates the data found at the given address.
+    static void Deallocate(void* address) {
+        Statistics::BlockDeallocated();
+
 #if defined(PLATFORM_WINDOWS)
-		VirtualFreeEx(GetCurrentProcess(), address, 0, MEM_RELEASE);
+        VirtualFree(address, 0, MEM_RELEASE);
 #else
         static_assert(false, "Not yet implemented.");
 #endif
-	}
+    }
 
-	static unsigned int GetPageSize() {
+    // Deallocates the data found at the given address (NUMA version).
+    static void DeallocateNuma(void* address, unsigned int prefferedNode) {
+        Statistics::BlockDeallocated();
+        
 #if defined(PLATFORM_WINDOWS)
-		SYSTEM_INFO si;
-		GetSystemInfo(&si);
-		return si.dwPageSize;
+        VirtualFreeEx(GetCurrentProcess(), address, 0, MEM_RELEASE);
 #else
         static_assert(false, "Not yet implemented.");
 #endif
-	}
+    }
 
-	static bool IsNumaSupported() {
+    static unsigned int GetPageSize() {
 #if defined(PLATFORM_WINDOWS)
-		OSVERSIONINFOEX info;
-		info.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-		GetVersionEx((LPOSVERSIONINFO)&info);
-
-		if(info.dwMajorVersion >= 6) return true;     // Vista+
-		if(info.dwMajorVersion == 5) {                // XP/2003
-			if(info.dwMinorVersion == 1) {
-				return (info.wServicePackMajor >= 2); // XP SP2
-			}
-
-			return (info.dwMinorVersion >= 2);        // XP64/2003;
-		}
-
-		return false;
+        SYSTEM_INFO si;
+        GetSystemInfo(&si);
+        return si.dwPageSize;
 #else
         static_assert(false, "Not yet implemented.");
 #endif
-	}
+    }
 
-	static bool IsNumaAllocationSupported() {
+    static bool IsNumaSupported() {
 #if defined(PLATFORM_WINDOWS)
-		OSVERSIONINFOEX info;
-		info.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+        OSVERSIONINFOEX info;
+        info.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+        GetVersionEx((LPOSVERSIONINFO)&info);
 
-		GetVersionEx((LPOSVERSIONINFO)&info);
-		return info.dwMajorVersion >= 6; // Vista+
+        if(info.dwMajorVersion >= 6) return true;     // Vista+
+        if(info.dwMajorVersion == 5) {                // XP/2003
+            if(info.dwMinorVersion == 1) {
+                return (info.wServicePackMajor >= 2); // XP SP2
+            }
+
+            return (info.dwMinorVersion >= 2);        // XP64/2003;
+        }
+
+        return false;
 #else
         static_assert(false, "Not yet implemented.");
 #endif
-	}
+    }
 
-	static void InitializeNumaAllocation() {
+    static bool IsNumaAllocationSupported() {
 #if defined(PLATFORM_WINDOWS)
-		if(IsNumaAllocationSupported()) {
-			VirtualAllocExNumaFct = (VIRTUAL_ALLOC_EX_NUMA)
-									 GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")),
-													NAME_VIRTUAL_ALLOC_EX_NUMA);
-		}
-		else VirtualAllocExNumaFct = nullptr;
+        OSVERSIONINFOEX info;
+        info.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+
+        GetVersionEx((LPOSVERSIONINFO)&info);
+        return info.dwMajorVersion >= 6; // Vista+
 #else
         static_assert(false, "Not yet implemented.");
 #endif
-	}
+    }
 
-	static void FullBarrier() {
+    static void InitializeNumaAllocation() {
 #if defined(PLATFORM_WINDOWS)
-	#if defined(PLATFORM_64)
-		__faststorefence();
-	#else
-		MemoryBarrier();
-	#endif
+        if(IsNumaAllocationSupported()) {
+            VirtualAllocExNumaFct = (VIRTUAL_ALLOC_EX_NUMA)
+                                     GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")),
+                                                    NAME_VIRTUAL_ALLOC_EX_NUMA);
+        }
+        else VirtualAllocExNumaFct = nullptr;
 #else
-		static_assert(false, "Not yet implemented.");
+        static_assert(false, "Not yet implemented.");
 #endif
-	}
+    }
 
-	template <class T>
-	static T ReadValue(volatile T* address) {
-		T value = *address;
-		FullBarrier();
-		return value;
-	}
+    static void FullBarrier() {
+#if defined(PLATFORM_WINDOWS)
+    #if defined(PLATFORM_64)
+        __faststorefence();
+    #else
+        MemoryBarrier();
+    #endif
+#else
+        static_assert(false, "Not yet implemented.");
+#endif
+    }
 
-	template <class T>
-	static void WriteValue(volatile T* address, const T& value) {
-		FullBarrier();
-		*address = value;
-	}
+    template <class T>
+    static T ReadValue(volatile T* address) {
+        T value = *address;
+        FullBarrier();
+        return value;
+    }
 
-	static void Prefetch(void* address) {
+    template <class T>
+    static void WriteValue(volatile T* address, const T& value) {
+        FullBarrier();
+        *address = value;
+    }
+
+    static void Prefetch(void* address) {
 #if defined(PLATFORM_64)
-	#if defined(PLATFORM_WINDOWS)
-		_mm_prefetch((char*)address, _MM_HINT_NTA);
-	#else
-		static_assert(false, "Not yet implemented.");
-	#endif
+    #if defined(PLATFORM_WINDOWS)
+        _mm_prefetch((char*)address, _MM_HINT_NTA);
+    #else
+        static_assert(false, "Not yet implemented.");
+    #endif
 #endif
-	}
+    }
 };
 
 #if defined(PLATFORM_WINDOWS)

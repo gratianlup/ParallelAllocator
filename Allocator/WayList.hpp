@@ -11,11 +11,11 @@
 // disclaimer in the documentation and/or other materials provided
 // with the distribution.
 //
-// * The name "DocumentClustering" must not be used to endorse or promote
+// * The name "ParallelAllocator" must not be used to endorse or promote
 // products derived from this software without prior written permission.
 //
-// * Products derived from this software may not be called "DocumentClustering" nor
-// may "DocumentClustering" appear in their names without prior written
+// * Products derived from this software may not be called "ParallelAllocator" nor
+// may "ParallelAllocator" appear in their names without prior written
 // permission of the author.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -50,8 +50,8 @@ typedef ListNode* (*RemoveFirstFunct)(void*, int);
 // Provides the pointers to the methods that operate on the list.
 class HugeLocationList {
 public:
-	AddObjectFunct AddObject;
-	RemoveFirstFunct RemoveFirst;
+    AddObjectFunct AddObject;
+    RemoveFirstFunct RemoveFirst;
 };
 
 
@@ -62,40 +62,40 @@ public:
 template <unsigned int WayCount>
 class MultiWayList : public HugeLocationList {
 public:
-	FreeObjectList<> ways_[WayCount];
+    FreeObjectList<> ways_[WayCount];
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	MultiWayList() { }
+    MultiWayList() { }
 
-	MultiWayList(unsigned int capacity, 
+    MultiWayList(unsigned int capacity, 
                  AddObjectFunct AddFunct, 
                  RemoveFirstFunct RemoveFunct) {
-		AddObject = AddFunct; 
-		RemoveFirst = RemoveFunct;
-		unsigned int capacityPerWay = capacity / WayCount;
+        AddObject = AddFunct; 
+        RemoveFirst = RemoveFunct;
+        unsigned int capacityPerWay = capacity / WayCount;
 
-		for(unsigned int i = 0; i < WayCount; i++) {
-			ways_[i] = FreeObjectList<>(capacityPerWay);
-		}
-	}
+        for(unsigned int i = 0; i < WayCount; i++) {
+            ways_[i] = FreeObjectList<>(capacityPerWay);
+        }
+    }
 };
 
 
 // A class that stores unused huge locations in a single internal list.
 class OneWayList : public HugeLocationList {
 public:
-	FreeObjectList<> way_;
+    FreeObjectList<> way_;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	OneWayList() { }
+    OneWayList() { }
 
-	OneWayList(unsigned int capacity, 
+    OneWayList(unsigned int capacity, 
                AddObjectFunct AddFunct, 
                RemoveFirstFunct RemoveFunct) {
-		AddObject = AddFunct; 
-		RemoveFirst = RemoveFunct;
-		way_ = FreeObjectList<>(capacity);
-	}
+        AddObject = AddFunct; 
+        RemoveFirst = RemoveFunct;
+        way_ = FreeObjectList<>(capacity);
+    }
 };
 #pragma pop()
 

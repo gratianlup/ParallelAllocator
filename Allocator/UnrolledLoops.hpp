@@ -11,11 +11,11 @@
 // disclaimer in the documentation and/or other materials provided
 // with the distribution.
 //
-// * The name "DocumentClustering" must not be used to endorse or promote
+// * The name "ParallelAllocator" must not be used to endorse or promote
 // products derived from this software without prior written permission.
 //
-// * Products derived from this software may not be called "DocumentClustering" nor
-// may "DocumentClustering" appear in their names without prior written
+// * Products derived from this software may not be called "ParallelAllocator" nor
+// may "ParallelAllocator" appear in their names without prior written
 // permission of the author.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -36,11 +36,11 @@
 #define PC_BASE_ALLOCATOR_UNROLLED_LOOPS_HPP
 
 #if defined(PLATFORM_64)
-	#if defined PLATFORM_WINDOWS
-		#include <intrin.h>
-	#else
+    #if defined PLATFORM_WINDOWS
+        #include <intrin.h>
+    #else
         static_assert(false, "Not yet implemented.");
-	#endif
+    #endif
 #endif
 
 
@@ -49,13 +49,13 @@
 template<class T, unsigned int Left, unsigned int Right>
 struct UnrolledCopy {
 private:
-	enum { go = (Left < (Right - 1)) };
+    enum { go = (Left < (Right - 1)) };
 
 public:
-	static void Execute(T* destination, T* source) {
-		*destination = *source;
-		UnrolledCopy<T, go ? Left + 1 : 0, go ? Right : 0>::Execute(destination + 1, source + 1);
-	}
+    static void Execute(T* destination, T* source) {
+        *destination = *source;
+        UnrolledCopy<T, go ? Left + 1 : 0, go ? Right : 0>::Execute(destination + 1, source + 1);
+    }
 };
 
 
@@ -63,7 +63,7 @@ public:
 template<class T>
 struct UnrolledCopy<T, 0, 0> {
 public:
-	static void Execute(T* destination, T* source) {}
+    static void Execute(T* destination, T* source) {}
 };
 
 
@@ -72,13 +72,13 @@ public:
 template<class T,unsigned int Left, unsigned int Right>
 struct UnrolledOr {
 private:
-	enum { go = (Left < (Right - 1)) };
+    enum { go = (Left < (Right - 1)) };
 
 public:
-	static void Execute(T* destination, T* source) {
-		*destination |= *source;
-		UnrolledOr<T, go ? Left + 1 : 0, go ? Right : 0>::Execute(destination + 1, source + 1);
-	}
+    static void Execute(T* destination, T* source) {
+        *destination |= *source;
+        UnrolledOr<T, go ? Left + 1 : 0, go ? Right : 0>::Execute(destination + 1, source + 1);
+    }
 };
 
 
@@ -86,7 +86,7 @@ public:
 template<class T>
 struct UnrolledOr<T, 0, 0> {
 public:
-	static void Execute(T* destination, T* source) {}
+    static void Execute(T* destination, T* source) {}
 };
 
 
@@ -95,13 +95,13 @@ public:
 template<class T, T Value, unsigned int Left, unsigned int Right>
 struct UnrolledSet {
 private:
-	enum { go = (Left < (Right - 1)) };
+    enum { go = (Left < (Right - 1)) };
 
 public:
-	static void Execute(T* destination) {
-		*destination = Value;
-		UnrolledSet<T, Value, go ? Left + 1 : 0, go ? Right : 0>::Execute(destination + 1);
-	}
+    static void Execute(T* destination) {
+        *destination = Value;
+        UnrolledSet<T, Value, go ? Left + 1 : 0, go ? Right : 0>::Execute(destination + 1);
+    }
 };
 
 
@@ -109,7 +109,7 @@ public:
 template<class T, T Value>
 struct UnrolledSet<T, Value, 0, 0> {
 public:
-	static void Execute(T* destination) {}
+    static void Execute(T* destination) {}
 };
 
 
@@ -119,13 +119,13 @@ public:
 template<unsigned int Left, unsigned int Right>
 struct UnrolledSet128 {
 private:
-	enum { go = (Left < (Right - 1)) };
+    enum { go = (Left < (Right - 1)) };
 
 public:
-	static void Execute(__m128i* destination, __m128i value) {
-		_mm_store_si128(destination, value);
-		UnrolledSet128<go ? Left + 1 : 0, go ? Right : 0>::Execute(destination + 1, value);
-	}
+    static void Execute(__m128i* destination, __m128i value) {
+        _mm_store_si128(destination, value);
+        UnrolledSet128<go ? Left + 1 : 0, go ? Right : 0>::Execute(destination + 1, value);
+    }
 };
 
 
@@ -133,7 +133,7 @@ public:
 template<>
 struct UnrolledSet128<0, 0> {
 public:
-	static void Execute(__m128i* destination, __m128i value) {}
+    static void Execute(__m128i* destination, __m128i value) {}
 };
 #endif
 

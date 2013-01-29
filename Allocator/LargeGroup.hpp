@@ -11,11 +11,11 @@
 // disclaimer in the documentation and/or other materials provided
 // with the distribution.
 //
-// * The name "DocumentClustering" must not be used to endorse or promote
+// * The name "ParallelAllocator" must not be used to endorse or promote
 // products derived from this software without prior written permission.
 //
-// * Products derived from this software may not be called "DocumentClustering" nor
-// may "DocumentClustering" appear in their names without prior written
+// * Products derived from this software may not be called "ParallelAllocator" nor
+// may "ParallelAllocator" appear in their names without prior written
 // permission of the author.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -41,11 +41,11 @@
 #include "Bitmap.hpp"
 
 #if defined(PLATFORM_64)
-	#if defined PLATFORM_WINDOWS
-		#include <intrin.h>
-	#else
+    #if defined PLATFORM_WINDOWS
+        #include <intrin.h>
+    #else
         static_assert(false, "Not yet implemented.");
-	#endif
+    #endif
 #endif
 
 namespace Base {
@@ -55,27 +55,27 @@ struct BitmapHolder {
     static const BitmapHolder None;
 
 #if defined(PLATFORM_32)
-	unsigned int Bitmap : 20;
-	unsigned int Count  : 12;
+    unsigned int Bitmap : 20;
+    unsigned int Count  : 12;
 #else
-	unsigned int Bitmap;
-	unsigned int Count;
+    unsigned int Bitmap;
+    unsigned int Count;
 #endif
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-	BitmapHolder() { }
+    BitmapHolder() { }
 
-	BitmapHolder(unsigned int bitmap, unsigned int count) : 
+    BitmapHolder(unsigned int bitmap, unsigned int count) : 
             Bitmap(bitmap), Count(count) { }
 
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-	bool operator ==(const BitmapHolder& other) {
-		return* ((unsigned int*)this) == *((unsigned int*)&other);
-	}
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    bool operator ==(const BitmapHolder& other) {
+        return* ((unsigned int*)this) == *((unsigned int*)&other);
+    }
 
-	bool operator !=(const BitmapHolder& other) {
-		return !this->operator ==(other);
-	}
+    bool operator !=(const BitmapHolder& other) {
+        return !this->operator ==(other);
+    }
 };
 
 const BitmapHolder BitmapHolder::None = BitmapHolder(-1, 0);
@@ -85,216 +85,216 @@ const BitmapHolder BitmapHolder::None = BitmapHolder(-1, 0);
 // between a location and the corresponding subgroup.
 // Replaces the expensive division that would have been necessary on each allocation.
 struct SubgroupMapping {
-	unsigned int Mask;
+    unsigned int Mask;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-	SubgroupMapping() {}
+    SubgroupMapping() {}
 
-	SubgroupMapping(unsigned int totalLoc, unsigned int locPerSubgroup) {
-		Mask = 0;
+    SubgroupMapping(unsigned int totalLoc, unsigned int locPerSubgroup) {
+        Mask = 0;
 
-		for(unsigned int i = 0; i < totalLoc; i++) {
-			Mask |= (i / locPerSubgroup) << (i * 2);
-		}
-	}
+        for(unsigned int i = 0; i < totalLoc; i++) {
+            Mask |= (i / locPerSubgroup) << (i * 2);
+        }
+    }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-	unsigned int GetSubgroup(unsigned int index) {
-		return (Mask >> (index * 2)) & 0x03;
-	}
+    unsigned int GetSubgroup(unsigned int index) {
+        return (Mask >> (index * 2)) & 0x03;
+    }
 };
 
 
 class LargeGroup : public LargeTraits::NodeType {
-	static const unsigned int HEADER_SIZE = Constants::LARGE_GROUP_HEADER_SIZE;
+    static const unsigned int HEADER_SIZE = Constants::LARGE_GROUP_HEADER_SIZE;
 
 public:
-	// The first cache line contains only the data 
+    // The first cache line contains only the data 
     // inherited from 'SmallTraits::NodeType'.
-	char Padding1[Constants::CACHE_LINE_SIZE - sizeof(LargeTraits::NodeType)];
-	// ------------------------------------ END OF CACHE LINE 1 ------------------------* 
+    char Padding1[Constants::CACHE_LINE_SIZE - sizeof(LargeTraits::NodeType)];
+    // ------------------------------------ END OF CACHE LINE 1 ------------------------* 
 
-	void* ParentBin;           // The owner of the group.
-	void* ParentBlock;         // The block to which the group belongs.
-	void* NextPublic;          // The next group that has public locations. 
-	unsigned int ThreadId;     // The ID of the thread who owns this group.
-	unsigned int Locations;    // The maximum number of locations that can be allocated.
-	unsigned int LocationSize; // The size of a location in this group.
-	unsigned int PrivateFree;
-	unsigned int PrivateBitmap;
-	SubgroupMapping Subgroups;
+    void* ParentBin;           // The owner of the group.
+    void* ParentBlock;         // The block to which the group belongs.
+    void* NextPublic;          // The next group that has public locations. 
+    unsigned int ThreadId;     // The ID of the thread who owns this group.
+    unsigned int Locations;    // The maximum number of locations that can be allocated.
+    unsigned int LocationSize; // The size of a location in this group.
+    unsigned int PrivateFree;
+    unsigned int PrivateBitmap;
+    SubgroupMapping Subgroups;
 
-	// Padding to cache line.
-	char Padding2[Constants::CACHE_LINE_SIZE - (3 *  sizeof(void*)) - 
+    // Padding to cache line.
+    char Padding2[Constants::CACHE_LINE_SIZE - (3 *  sizeof(void*)) - 
                   (5 * sizeof(unsigned int)) - sizeof(SubgroupMapping)];
-	// ------------------------------------ END OF CACHE LINE 2 ------------------------* 
+    // ------------------------------------ END OF CACHE LINE 2 ------------------------* 
 
-	BitmapHolder PublicBitmap;
+    BitmapHolder PublicBitmap;
 
 private:
-	void* LocationToAddress(unsigned int location) {
-		return (void*)((uintptr_t)this + ((Subgroups.GetSubgroup(location) + 1) * HEADER_SIZE) + 
-					   (LocationSize*  location));
-	}
+    void* LocationToAddress(unsigned int location) {
+        return (void*)((uintptr_t)this + ((Subgroups.GetSubgroup(location) + 1) * HEADER_SIZE) + 
+                       (LocationSize*  location));
+    }
 
-	unsigned int AddressToLocation(void* address) {
-		return (unsigned int)(((uintptr_t)address - (uintptr_t)this) / LocationSize);
-	}
+    unsigned int AddressToLocation(void* address) {
+        return (unsigned int)(((uintptr_t)address - (uintptr_t)this) / LocationSize);
+    }
 
-	void Reset() {
+    void Reset() {
 #ifdef PLATFORM_32
-		// Reset 4 bytes at a time under 32-bit.
-		UnrolledSet<unsigned int, 0, 0, 
+        // Reset 4 bytes at a time under 32-bit.
+        UnrolledSet<unsigned int, 0, 0, 
                     HEADER_SIZE / sizeof(unsigned int)>::Execute(this);
 #else
-		// Reset 16 bytes at a time under 64-bit (uses SSE2).
-		__m128i val;
-		val.m128i_i64[0] = val.m128i_i64[1] = 0;
-		UnrolledSet128<HEADER_SIZE / sizeof(__m128i)>::Execute(this, val);
+        // Reset 16 bytes at a time under 64-bit (uses SSE2).
+        __m128i val;
+        val.m128i_i64[0] = val.m128i_i64[1] = 0;
+        UnrolledSet128<HEADER_SIZE / sizeof(__m128i)>::Execute(this, val);
 #endif
-	}
+    }
 
-	void MergeBitmaps() {
-		// Use atomic instructions to get the correct PublicStart 
+    void MergeBitmaps() {
+        // Use atomic instructions to get the correct PublicStart 
         // and set it to Constants::LIST_END.
-		BitmapHolder currentBitmap;
-		BitmapHolder test = PublicBitmap;
+        BitmapHolder currentBitmap;
+        BitmapHolder test = PublicBitmap;
 
-		do	{
-			currentBitmap = test;
-			unsigned int temp = 
+        do	{
+            currentBitmap = test;
+            unsigned int temp = 
                     Atomic::CompareExchange((unsigned int*)&PublicBitmap, 
-											*((unsigned int*)&BitmapHolder::None),
-											*((unsigned int*)&currentBitmap));
-			test = *reinterpret_cast<BitmapHolder*>(&temp);
-		} while (test != currentBitmap);
+                                            *((unsigned int*)&BitmapHolder::None),
+                                            *((unsigned int*)&currentBitmap));
+            test = *reinterpret_cast<BitmapHolder*>(&temp);
+        } while (test != currentBitmap);
 
-		// 'location' now contains the correct public list start.
-		// Add the number of elements in the public list to the private counter.
-		PrivateBitmap |= currentBitmap.Bitmap;
-		PrivateFree += currentBitmap.Count;
-	}
+        // 'location' now contains the correct public list start.
+        // Add the number of elements in the public list to the private counter.
+        PrivateBitmap |= currentBitmap.Bitmap;
+        PrivateFree += currentBitmap.Count;
+    }
 
 public:
-	// Initializes a group that has all it's locations free.
-	void InitializeUnused(unsigned int locationSize, unsigned int locations, 
+    // Initializes a group that has all it's locations free.
+    void InitializeUnused(unsigned int locationSize, unsigned int locations, 
                           unsigned int threadId) {
-		ThreadId = threadId;
-		LocationSize = locationSize;
-		Locations = locations;
-		PrivateFree = locations;
-		PrivateBitmap = -1;
+        ThreadId = threadId;
+        LocationSize = locationSize;
+        Locations = locations;
+        PrivateFree = locations;
+        PrivateBitmap = -1;
 
-		Subgroups = SubgroupMapping(Locations, Locations / 4);
+        Subgroups = SubgroupMapping(Locations, Locations / 4);
 
-		// Each subgroup must be marked as being one.
-		for(unsigned int i = 0; i < 4; i++) {
-			auto subgroup = reinterpret_cast<LargeTraits::NodeType*>((uintptr_t)this + 
-											(i * Constants::SMALL_GROUP_SIZE));
-			LargeTraits::PolicyType::SetType(subgroup);
-			LargeTraits::PolicyType::SetSubgroup(subgroup, i);
-		}
-	}
+        // Each subgroup must be marked as being one.
+        for(unsigned int i = 0; i < 4; i++) {
+            auto subgroup = reinterpret_cast<LargeTraits::NodeType*>((uintptr_t)this + 
+                                            (i * Constants::SMALL_GROUP_SIZE));
+            LargeTraits::PolicyType::SetType(subgroup);
+            LargeTraits::PolicyType::SetSubgroup(subgroup, i);
+        }
+    }
 
-	// Initializes a group that has some of it's locations used.
-	void InitializeUsed(unsigned int threadId) {
-		ThreadId = threadId;
+    // Initializes a group that has some of it's locations used.
+    void InitializeUsed(unsigned int threadId) {
+        ThreadId = threadId;
 
-		// Make the public bitmap list private.
-		if(PrivateFree != Locations) {
-			MergeBitmaps();
-		}
-	}
+        // Make the public bitmap list private.
+        if(PrivateFree != Locations) {
+            MergeBitmaps();
+        }
+    }
 
-	bool IsEmptyEnough() {
-		return PrivateFree > 0;
-	}
+    bool IsEmptyEnough() {
+        return PrivateFree > 0;
+    }
 
-	bool CanBeStolen() {
-		return PrivateFree >= (Locations / 4); // 25%
-	}
+    bool CanBeStolen() {
+        return PrivateFree >= (Locations / 4); // 25%
+    }
 
-	bool ShouldReturn() {
-		// The group can return to the global pool if it
+    bool ShouldReturn() {
+        // The group can return to the global pool if it
         // has more than 75% free locations.
-		return (PrivateFree >= ((Locations*  3) / 4) && 
+        return (PrivateFree >= ((Locations*  3) / 4) && 
                (PublicBitmap == BitmapHolder::None));
-	}
+    }
 
-	bool IsFull() {
-		return (PrivateFree == Locations) && 
+    bool IsFull() {
+        return (PrivateFree == Locations) && 
                (PublicBitmap == BitmapHolder::None);
-	}
+    }
 
-	bool MayBeFull(unsigned int publicLocations) {
-		return (PrivateFree + publicLocations == Locations);
-	}
+    bool MayBeFull(unsigned int publicLocations) {
+        return (PrivateFree + publicLocations == Locations);
+    }
 
-	bool HasPublic() {
-		return (PublicBitmap != BitmapHolder::None);
-	}
+    bool HasPublic() {
+        return (PublicBitmap != BitmapHolder::None);
+    }
 
-	void* GetPrivateLocation() {
-		if(PrivateFree == 0) {
+    void* GetPrivateLocation() {
+        if(PrivateFree == 0) {
             return nullptr;
         }
 
-		unsigned int location = Bitmap::SearchForward(PrivateBitmap);
-		Bitmap::ResetBit(PrivateBitmap, location);
-		PrivateFree--;
-		return LocationToAddress(location);
-	}
+        unsigned int location = Bitmap::SearchForward(PrivateBitmap);
+        Bitmap::ResetBit(PrivateBitmap, location);
+        PrivateFree--;
+        return LocationToAddress(location);
+    }
 
-	void* GetPublicLocation() {
-		if(PublicBitmap == BitmapHolder::None) {
+    void* GetPublicLocation() {
+        if(PublicBitmap == BitmapHolder::None) {
             return nullptr;
         }
 
-		MergeBitmaps();
-		return GetPrivateLocation();
-	}
+        MergeBitmaps();
+        return GetPrivateLocation();
+    }
 
-	void* GetLocation() {
-		// Try to allocate from the private locations first.
-		void* address = GetPrivateLocation();
+    void* GetLocation() {
+        // Try to allocate from the private locations first.
+        void* address = GetPrivateLocation();
         
-		if(address != nullptr) {
-			return address;
-		}
-		
-		return GetPublicLocation();
-	}
+        if(address != nullptr) {
+            return address;
+        }
+        
+        return GetPublicLocation();
+    }
 
-	void ReturnPrivateLocation(void* address) {
-		unsigned int location = AddressToLocation(address);
-		Bitmap::SetBit(PrivateBitmap, location);
-		PrivateFree++;
-	}
+    void ReturnPrivateLocation(void* address) {
+        unsigned int location = AddressToLocation(address);
+        Bitmap::SetBit(PrivateBitmap, location);
+        PrivateFree++;
+    }
 
-	unsigned int ReturnPublicLocation(void* address) {
-		unsigned int location = AddressToLocation(address);
-		BitmapHolder currentBitmap;
-		BitmapHolder replacement;
-		BitmapHolder test = PublicBitmap;
+    unsigned int ReturnPublicLocation(void* address) {
+        unsigned int location = AddressToLocation(address);
+        BitmapHolder currentBitmap;
+        BitmapHolder replacement;
+        BitmapHolder test = PublicBitmap;
 
-		do	{
-			currentBitmap = test;
-			replacement.Count = currentBitmap.Count + 1; 
-			replacement.Bitmap = currentBitmap.Bitmap | (1 << location);
+        do	{
+            currentBitmap = test;
+            replacement.Count = currentBitmap.Count + 1; 
+            replacement.Bitmap = currentBitmap.Bitmap | (1 << location);
 
-			unsigned int temp = 
+            unsigned int temp = 
                     Atomic::CompareExchange((unsigned int*)&PublicBitmap, 
-											*((unsigned int*)&replacement),
-											*((unsigned int*)&currentBitmap));
-			test = *reinterpret_cast<BitmapHolder*>(&temp);
-		} while (test != currentBitmap);
+                                            *((unsigned int*)&replacement),
+                                            *((unsigned int*)&currentBitmap));
+            test = *reinterpret_cast<BitmapHolder*>(&temp);
+        } while (test != currentBitmap);
 
-		return replacement.Count;
-	}
+        return replacement.Count;
+    }
 
-	void PrivatizeLocations() {
-		MergeBitmaps();
-	}
+    void PrivatizeLocations() {
+        MergeBitmaps();
+    }
 };
 
 // namespace Base

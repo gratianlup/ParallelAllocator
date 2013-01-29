@@ -11,11 +11,11 @@
 // disclaimer in the documentation and/or other materials provided
 // with the distribution.
 //
-// * The name "DocumentClustering" must not be used to endorse or promote
+// * The name "ParallelAllocator" must not be used to endorse or promote
 // products derived from this software without prior written permission.
 //
-// * Products derived from this software may not be called "DocumentClustering" nor
-// may "DocumentClustering" appear in their names without prior written
+// * Products derived from this software may not be called "ParallelAllocator" nor
+// may "ParallelAllocator" appear in their names without prior written
 // permission of the author.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -42,96 +42,96 @@ namespace Base {
 
 class Statistics {
 public:
-	static volatile unsigned int groupsObtained;
-	static volatile unsigned int usedGroupsReturned;
-	static volatile unsigned int emptyGroupsReturned;
-	static volatile unsigned int invalidPublicGroups;
-	static volatile unsigned int publicLocationFreed;
-	static volatile unsigned int activeGroupChanged;
-	static volatile unsigned int blocksAllocated;
-	static volatile unsigned int blocksDeallocated;
-	static volatile unsigned int broughtToFront;
-	static volatile unsigned int threadsCreated;
-	static volatile unsigned int threadsDestroyed;
+    static volatile unsigned int groupsObtained;
+    static volatile unsigned int usedGroupsReturned;
+    static volatile unsigned int emptyGroupsReturned;
+    static volatile unsigned int invalidPublicGroups;
+    static volatile unsigned int publicLocationFreed;
+    static volatile unsigned int activeGroupChanged;
+    static volatile unsigned int blocksAllocated;
+    static volatile unsigned int blocksDeallocated;
+    static volatile unsigned int broughtToFront;
+    static volatile unsigned int threadsCreated;
+    static volatile unsigned int threadsDestroyed;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 #if defined(STATISTICS)
-	static void GroupObtained(void* group) {
-		Atomic::Increment(&groupsObtained);
-	}
+    static void GroupObtained(void* group) {
+        Atomic::Increment(&groupsObtained);
+    }
 
-	static void UsedGroupReturned(void* group) {
-		Atomic::Increment(&usedGroupsReturned);
-	}
+    static void UsedGroupReturned(void* group) {
+        Atomic::Increment(&usedGroupsReturned);
+    }
 
-	static void EmptyGroupReturned(void* group)	{
-		Atomic::Increment(&emptyGroupsReturned);
-	}
+    static void EmptyGroupReturned(void* group)	{
+        Atomic::Increment(&emptyGroupsReturned);
+    }
 
-	static void InvalidPublicGroup(void* group)	{
-		Atomic::Increment(&invalidPublicGroups);
-	}
+    static void InvalidPublicGroup(void* group)	{
+        Atomic::Increment(&invalidPublicGroups);
+    }
 
-	static void PublicLocationFreed(void* group) {
-		Atomic::Increment(&publicLocationFreed);
-	}
+    static void PublicLocationFreed(void* group) {
+        Atomic::Increment(&publicLocationFreed);
+    }
 
-	static void ActiveGroupChanged(void* group) {
-		Atomic::Increment(&activeGroupChanged);
-	}
+    static void ActiveGroupChanged(void* group) {
+        Atomic::Increment(&activeGroupChanged);
+    }
 
-	static void BlockAllocated() {
-		Atomic::Increment(&blocksAllocated);
-	}
+    static void BlockAllocated() {
+        Atomic::Increment(&blocksAllocated);
+    }
 
-	static void BlockDeallocated() {
-		Atomic::Increment(&blocksDeallocated);
-	}
+    static void BlockDeallocated() {
+        Atomic::Increment(&blocksDeallocated);
+    }
 
-	static void BroughtToFront() {
-		Atomic::Increment(&broughtToFront);
-	}
+    static void BroughtToFront() {
+        Atomic::Increment(&broughtToFront);
+    }
 
-	static void ThreadCreated() {
-		Atomic::Increment(&threadsCreated);
-	}
+    static void ThreadCreated() {
+        Atomic::Increment(&threadsCreated);
+    }
 
-	static void ThreadDestroyed() {
-		Atomic::Increment(&threadsDestroyed);
-	}
+    static void ThreadDestroyed() {
+        Atomic::Increment(&threadsDestroyed);
+    }
 #else
     // No statistics collected.
-	static void GroupObtained(void* group) {}
-	static void UsedGroupReturned(void* group) {}
-	static void EmptyGroupReturned(void* group) {}
-	static void InvalidPublicGroup(void* group) {}
-	static void PublicLocationFreed(void* group) {}
-	static void ActiveGroupChanged(void* group) {}
-	static void BlockAllocated() {}
-	static void BlockDeallocated() {}
-	static void BroughtToFront() {}
-	static void ThreadCreated() {}
-	static void ThreadDestroyed() {}
+    static void GroupObtained(void* group) {}
+    static void UsedGroupReturned(void* group) {}
+    static void EmptyGroupReturned(void* group) {}
+    static void InvalidPublicGroup(void* group) {}
+    static void PublicLocationFreed(void* group) {}
+    static void ActiveGroupChanged(void* group) {}
+    static void BlockAllocated() {}
+    static void BlockDeallocated() {}
+    static void BroughtToFront() {}
+    static void ThreadCreated() {}
+    static void ThreadDestroyed() {}
 #endif
 
-	static void DisplayInt(unsigned int value, char* message) {
-		printf("%25s: %d\n", message, value);
-	}
+    static void DisplayInt(unsigned int value, char* message) {
+        printf("%25s: %d\n", message, value);
+    }
 
-	static void Display() {
-		DisplayInt(blocksAllocated*  Constants::BLOCK_SIZE, "Memory allocated");
-		DisplayInt(blocksAllocated,     "Blocks allocated");
-		DisplayInt(blocksDeallocated,   "Blocks deallocated");
-		DisplayInt(groupsObtained,      "Groups obtained");
-		DisplayInt(usedGroupsReturned,  "Groups returned (used)");
-		DisplayInt(emptyGroupsReturned, "Groups returned (empty)");
-		DisplayInt(invalidPublicGroups, "Invalid public groups");
-		DisplayInt(publicLocationFreed, "Public locations");
-		DisplayInt(activeGroupChanged,  "Active group changed");
-		DisplayInt(broughtToFront,      "Brought to front");
-		DisplayInt(threadsCreated,      "Threads created");
-		DisplayInt(threadsDestroyed,    "Threads destroyed");
-	}
+    static void Display() {
+        DisplayInt(blocksAllocated*  Constants::BLOCK_SIZE, "Memory allocated");
+        DisplayInt(blocksAllocated,     "Blocks allocated");
+        DisplayInt(blocksDeallocated,   "Blocks deallocated");
+        DisplayInt(groupsObtained,      "Groups obtained");
+        DisplayInt(usedGroupsReturned,  "Groups returned (used)");
+        DisplayInt(emptyGroupsReturned, "Groups returned (empty)");
+        DisplayInt(invalidPublicGroups, "Invalid public groups");
+        DisplayInt(publicLocationFreed, "Public locations");
+        DisplayInt(activeGroupChanged,  "Active group changed");
+        DisplayInt(broughtToFront,      "Brought to front");
+        DisplayInt(threadsCreated,      "Threads created");
+        DisplayInt(threadsDestroyed,    "Threads destroyed");
+    }
 };
 
 
