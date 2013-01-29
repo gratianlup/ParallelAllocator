@@ -75,12 +75,14 @@ private:
          return (blockSize_ - BLOCK_HEADER_SIZE) / objectSize_;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Initializes the specified block.
     void InitializeBlock(BlockHeader* block) {
         block->Bitmap = -1; // All divisions are available.
         block->FreeObjects = MaxObjectNumber();
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Allocates a new block and adds it to the list.
     void AllocateBlock() {
         // Allocate a new block of memory and add it to the list as the active one.
@@ -89,10 +91,12 @@ private:
         AddNewBlock(block);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void AddNewBlock(BlockHeader* block) {
         AddFirst(block);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Tries to make the specified block the active one.
     // If the specified block has fever objects than the active one,
     // or the active one has more than 25% free objects, the block 
@@ -107,8 +111,7 @@ private:
             if((firstFree <= (MaxObjectNumber() / 4)) && 
                (block->FreeObjects > firstFree)) {
                 // Few unused objects are in the active block, 
-                // and this one has more unused objects,
-                // so make it active.
+                // and this one has more unused objects, so make it active.
                 Remove(block);
                 AddFirst(block);
             }
@@ -120,11 +123,13 @@ private:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Removes the block from the list and deallocates it.
     void DeallocateBlock(BlockHeader* block) {
         Memory::Deallocate(block);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Gets an unused object from the specified block.
     void* GetObjectFromBlock(BlockHeader* block)	{
         // Find the first available object.
@@ -136,6 +141,7 @@ private:
         return (char*)block + BLOCK_HEADER_SIZE + (objectIndex*  objectSize_);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns an unused object to the specified block.
     void ReturnObjectToBlock(BlockHeader* block, unsigned int objectOffset)	{
         // Mark the object as unused.
@@ -176,6 +182,7 @@ public:
         return GetObjectFromBlock(static_cast<BlockHeader*>(First()));
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns the specified object to the pool.
     void ReturnObject(void* address)	{
         // Acquire the lock. Will be automatically released by the destructor.

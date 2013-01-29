@@ -161,6 +161,7 @@ private:
         return nullptr;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Deallocates the specified block of memory.
     template <class MemoryPolicy>
     void DeallocateBlock(BlockDescriptor* block)	{
@@ -198,6 +199,7 @@ private:
         return group;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns the specified group to the owner block.
     unsigned int ReturnGroupToBlock(BlockDescriptor* block, GroupType* group) {
         // Mark the group as unused.
@@ -256,6 +258,7 @@ public:
                                           Constants::BLOCK_DESCRIPTOR_CACHE);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Gets a group. If no group is available, the group 
     // is allocated from a new memory block.
     // 1. Check if a group that is not completely empty 
@@ -340,6 +343,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Tries to get an unused group without allocating a new block.
     // Used only by NUMA systems.
     template <class MemoryPolicy>
@@ -365,6 +369,7 @@ public:
         return nullptr; // No unused group found.
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Returns the specified group to it's parent block.
     template <class MemoryPolicy>
     void ReturnFullGroup(GroupType* group, bool takeLock) {
@@ -431,6 +436,7 @@ public:
 #endif
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Adds/removes the specified group to/from the associated partial list.
     template <class MemoryPolicy>
     void ReturnPartialGroup(GroupType* group, unsigned int action, 
@@ -475,6 +481,7 @@ public:
         }
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Creates a block descriptor for the specified memory range.
     template <class MemoryPolicy>
     void* AddBlock(void* address, unsigned __int64 bitmap, 
@@ -495,6 +502,7 @@ public:
         return block;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // Removes the specified block descriptor.
     template <class MemoryPolicy>
     void RemoveBlock(void* address) {
