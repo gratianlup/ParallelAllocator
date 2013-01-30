@@ -15,6 +15,9 @@ Access to low-level synchronization and bit-manipulation instructions is done th
 
 ![SmartFlip screenshot](http://www.gratianlup.com/documents/allocator_summary.png)  
 
-### Internal data structures details  
+### Internal data structures
+
+
+**[Download interrnal data structures details (PDF)](http://www.gratianlup.com/documents/allocator_summary.pdf.pdf)**  
 
 ![SmartFlip screenshot](http://www.gratianlup.com/documents/allocator.png)  
