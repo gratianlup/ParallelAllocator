@@ -294,7 +294,7 @@ public:
         BitmapHolder replacement;
         BitmapHolder test = PublicBitmap;
 
-        do	{
+        do {
             currentBitmap = test;
             replacement.Count = currentBitmap.Count + 1; 
             replacement.Bitmap = currentBitmap.Bitmap | (1 << location);
