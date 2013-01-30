@@ -12,6 +12,9 @@ It is implemented in C++ with a small amount of x86 Assembly and was recently co
 Access to low-level synchronization and bit-manipulation instructions is done through compiler intrinsics.  
 
 ### Architecture overview:  
-  
 
 ![SmartFlip screenshot](http://www.gratianlup.com/documents/allocator_summary.png)  
+
+### Internal data structures details  
+
+![SmartFlip screenshot](http://www.gratianlup.com/documents/allocator.png)  
