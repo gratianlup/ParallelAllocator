@@ -192,7 +192,7 @@ public:
         NumaNode* info = &nodes_[currentNode];
 
         for(unsigned int i = 0; i < (nodeNumber_ - 1); i++) {
-            NumaNode* victim =& nodes_[info->NearestNodes[i]];
+            NumaNode* victim = &nodes_[info->NearestNodes[i]];
 
             if(BASelector<T>::GetFreeBlock(victim)) {
                 // Found a node with at least one free block.
