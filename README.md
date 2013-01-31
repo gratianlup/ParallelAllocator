@@ -2,7 +2,7 @@ Parallel Allocator
 ===================
 
 A memory allocator optimized for high concurrency and low memory consumption on modern multi-core and multi-processor systems.  
-It includes special support for NUMA systems (stealing memory from another NUMA node, for example).
+It includes special support for NUMA systems (allocating memory from the nearest NUMA node, for example).
 
 It is about 60% faster than the allocator included with Microsoft Visual C++ and uses less than half the memory for small objects  
 (< 256 bytes), leading to better cache utilization; this also makes it ideal for applications that allocate a huge number of small objects.  
