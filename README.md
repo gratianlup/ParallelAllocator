@@ -18,7 +18,7 @@ Access to low-level synchronization and bit-manipulation instructions is done th
 ### Implementation details
 
 The following documents present some of the implementation details:  
-**[Download interrnal data structures details (PDF)](http://www.gratianlup.com/documents/allocator.pdf)**  
+**[Download internal data structures details (PDF)](http://www.gratianlup.com/documents/allocator.pdf)**  
 **[Download bin location size details (PDF)](http://www.gratianlup.com/documents/allocator_bins.pdf)**  
 
 ![SmartFlip screenshot](http://www.gratianlup.com/documents/allocator.png)  
