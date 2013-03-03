@@ -16,11 +16,12 @@ Access to low-level synchronization and bit-manipulation instructions is done th
 The arhitecture and the implementaion details are described in the following document:  
 **[Download arhitecture and the implementaion details (PDF)](http://www.gratianlup.com/documents/parallel_allocator.pdf)**  
   
+  
 ![SmartFlip screenshot](http://www.gratianlup.com/documents/allocator_summary.png)  
 
 ### Implementation details
 
-The following documents present some of the implementation details:  
+The following documents present more implementation details:  
 **[Download internal data structures details (PDF)](http://www.gratianlup.com/documents/allocator.pdf)**  
 **[Download bin location size details (PDF)](http://www.gratianlup.com/documents/allocator_bins.pdf)**  
 
