@@ -375,7 +375,7 @@ public:
             allocInfo.Bin = ((size - 1) >> (highestBit - 2)) + (4*  (highestBit - 5)) + 3;
         }
         else if(size <= Constants::MAX_SMALL_SIZE) {
-            /*// Search for the allocation size and bin using a kind of binary search.
+            /*// Search for the allocation size and bin using binary search.
             if(size <= Constants::ALLOCATION_SIZE_5)
             {
                 if(size <= Constants::ALLOCATION_SIZE_3)
@@ -683,7 +683,6 @@ public:
 
                 // Make the second group the active one.
                 MakeGroupActive(bin, activeGroup);
-
 #if defined(STEAL)
                 SetAvailableForStealing<GS::GroupType>(context, allocInfo.Bin, 
                                                        activeGroup->CanBeStolen());

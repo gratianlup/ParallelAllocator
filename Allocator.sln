@@ -1,7 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Allocator", "Allocator\Allocator.vcxproj", "{C806B611-CA65-461F-BBF3-706415005580}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AllocatorTester", "AllocatorTester\AllocatorTester.vcxproj", "{3AE268D9-5CF4-4125-857C-42871053814E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +15,10 @@ Global
 		{C806B611-CA65-461F-BBF3-706415005580}.Debug|Win32.Build.0 = Debug|Win32
 		{C806B611-CA65-461F-BBF3-706415005580}.Release|Win32.ActiveCfg = Release|Win32
 		{C806B611-CA65-461F-BBF3-706415005580}.Release|Win32.Build.0 = Release|Win32
+		{3AE268D9-5CF4-4125-857C-42871053814E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3AE268D9-5CF4-4125-857C-42871053814E}.Debug|Win32.Build.0 = Debug|Win32
+		{3AE268D9-5CF4-4125-857C-42871053814E}.Release|Win32.ActiveCfg = Release|Win32
+		{3AE268D9-5CF4-4125-857C-42871053814E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
