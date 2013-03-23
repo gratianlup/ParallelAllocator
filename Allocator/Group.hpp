@@ -653,7 +653,7 @@ private:
         ListHead<LocationPtr> location;
         ListHead<LocationPtr> test = PublicStart;
 
-        do	{
+        do {
             location = test;
             auto listEnd = &ListHead<LocationPtr>::ListEnd;
             unsigned __int64 temp = 
@@ -683,7 +683,7 @@ private:
         ListHead<LocationPtr> location;
         ListHead<LocationPtr> test = PublicStart;
 
-        do	{
+        do {
             location = test;
             auto listEnd = &ListHead<LocationPtr>::ListEnd;
             unsigned __int64 temp = 
@@ -1210,27 +1210,23 @@ public:
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void DumpLocations() {
-        LocationPtr ct = 0;
         LocationPtr loc = PrivateStart;
-        while(loc != Constants::LIST_END)
-        {
+        
+        while(loc != Constants::LIST_END) {
             std::cout<<loc<<" ";
             LocationPtr next = GetNextLocation(LocationToAddress(loc));
             assert(next == Constants::LIST_END || next > loc);
             loc = next;
-            //ct++;
         }
 
         std::cout<<"****** "<<ct<<"* *****";
-
         std::cout<<"\n\nPublic: ";
-        //loc = PublicStart;
-        while(loc != Constants::LIST_END)
-        {
+        loc = PublicStart;
+        
+        while(loc != Constants::LIST_END) {
             std::cout<<loc<<" ";
             loc = GetNextLocation(LocationToAddress(loc));
         }
-
 
         std::cout<<"\n--------------------------------------------------------\n";
     }
