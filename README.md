@@ -15,6 +15,10 @@ Access to low-level synchronization and bit-manipulation instructions is done th
 
 ![Allocator screenshot](http://www.gratianlup.com/documents/allocator_graph1.PNG)  
 
+The test was done on a quad-core Intel Core i7 CPU under Windows 7. Because the CRT ultimatelly calls *HeapAlloc*, the version  
+of Windows is very important, the test application running *much* slower under Windows XP  
+which doesn't implement the *Low Fragmentation Heap* introduced with Windows 7.
+
 ### Architecture overview:  
 
 The arhitecture and the implementaion details are described in the following document:  
