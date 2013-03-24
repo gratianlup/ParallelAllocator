@@ -138,7 +138,7 @@ private:
         // Mark the object as used and return it's address;
         block->Bitmap &= ~(1ULL << objectIndex);
         block->FreeObjects--;
-        return (char*)block + BLOCK_HEADER_SIZE + (objectIndex*  objectSize_);
+        return (char*)block + BLOCK_HEADER_SIZE + (objectIndex * objectSize_);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -153,7 +153,7 @@ private:
 public:
     ObjectPool() { }
 
-    ObjectPool(unsigned int blockSize,unsigned  int divisionSize, 
+    ObjectPool(unsigned int blockSize, unsigned int divisionSize, 
                unsigned int cacheSize) : 
             ObjectList(), blockSize_(blockSize), 
             objectSize_(divisionSize), lock_(0), cacheSize_(cacheSize) { }

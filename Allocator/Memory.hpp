@@ -50,10 +50,10 @@ namespace Base {
 class Memory {
 #if defined(PLATFORM_WINDOWS)
     // NUMA support.
-    static const char* NAME_VIRTUAL_ALLOC_EX_NUMA;
-    static VIRTUAL_ALLOC_EX_NUMA VirtualAllocExNumaFct;
     typedef LPVOID (WINAPI* VIRTUAL_ALLOC_EX_NUMA)(HANDLE, LPVOID, SIZE_T, 
                                                    DWORD, DWORD, DWORD);
+    static const char* NAME_VIRTUAL_ALLOC_EX_NUMA;
+    static VIRTUAL_ALLOC_EX_NUMA VirtualAllocExNumaFct;
 #endif
 
 public:
@@ -214,7 +214,7 @@ public:
 
 #if defined(PLATFORM_WINDOWS)
     const char* Memory::NAME_VIRTUAL_ALLOC_EX_NUMA = "VirtualAllocExNuma";
-    Memory::VIRTUAL_ALLOC_EX_NUMA Memory::VirtualAllocExNumaFct = nullptr;
+    Memory::VIRTUAL_ALLOC_EX_NUMA Memory::VirtualAllocExNumaFct = 0;
 #endif
 
 } // namespace Base

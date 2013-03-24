@@ -43,6 +43,7 @@
 #include "Atomic.hpp"
 #include "BitSpinLock.hpp"
 #include "ListHead.hpp"
+#include <assert.h>
 
 namespace Base {
 
@@ -72,9 +73,9 @@ struct LocationInfo {
 struct StolenLocation {
     unsigned short Free;
 
-    // The position of the active range is stored in the first 15 bits 
-    // of the spinlock. The highest bit (bit 15) stores the lock state.
-    BitSpinLock<unsigned short, 15> Position;
+    // The position of the active range is stored in the first 31 bits 
+    // of the spinlock. The highest bit (bit 31) stores the lock state.
+    BitSpinLock<unsigned int, 31> Position;
 };
 
 
@@ -391,11 +392,11 @@ private:
         // It's enough to set only the first 8 bytes to 0, 
         // because more is never used.
 #ifdef PLATFORM_32
-        UnrolledSet<unsigned int, 0, 0, 
-                    sizeof(FreedLocation) / sizeof(unsigned int)>::Execute(address);
+        UnrolledSet<int, 0, 0, 
+                    sizeof(FreedLocation) / sizeof(unsigned int)>::Execute((int*)address);
 #else
         UnrolledSet<__int64, 0, 0, 
-                    sizeof(FreedLocation) / sizeof(__int64)>::Execute(address);
+                    sizeof(FreedLocation) / sizeof(__int64)>::Execute((__int64*)address);
 #endif
     }
 
@@ -803,7 +804,7 @@ private:
 
             // Synchronize access on this location.
             auto stolen = reinterpret_cast<StolenLocation*>(stolenAddress);
-            BSLHolder<unsigned short, 15> lock(&stolen->Position);
+            BSLHolder<unsigned int, 31> lock(&stolen->Position);
 
             StolenRange* previous = nullptr;
             StolenRange* current = GetFirstRange(stolen);
@@ -1108,7 +1109,7 @@ public:
 
         // Synchronize access to this location.
         StolenLocation* stolen = reinterpret_cast<StolenLocation*>(Stolen);
-        BSLHolder<unsigned short, 15> lock(&stolen->Position);
+        BSLHolder<unsigned int, 31> lock(&stolen->Position);
 
         if(stolen->Free >= size) {
             void* rangeAddress = (void*)((char*)stolen + stolen->Position.GetLowPart());
@@ -1210,7 +1211,7 @@ public:
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void DumpLocations() {
-        LocationPtr loc = PrivateStart;
+        /*LocationPtr loc = PrivateStart;
         
         while(loc != Constants::LIST_END) {
             std::cout<<loc<<" ";
@@ -1228,7 +1229,7 @@ public:
             loc = GetNextLocation(LocationToAddress(loc));
         }
 
-        std::cout<<"\n--------------------------------------------------------\n";
+        std::cout<<"\n--------------------------------------------------------\n";*/
     }
 };
 #pragma pack(pop)

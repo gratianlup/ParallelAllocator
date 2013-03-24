@@ -36,7 +36,7 @@
 #define PC_BASE_ALLOCATOR_HUGE_LOCATION_HPP
 
 #include "Atomic.hpp"
-#include "Stack.hpp"
+// #include "Stack.hpp"
 #include <stdlib.h>
 #include <math.h>
 
@@ -47,14 +47,14 @@ namespace Base {
 // don't need to take the global lock of the OS-specific allocation routine.
 // The size of the cache is inverse proportional with the size of the location 
 // (smaller locations, that are used more often, have a bigger cache).
-#pragma push()
-#pragma pack(1)
 
 // Huge locations have a size multiple of 4KB and are aligned
 // on a 16 byte boundary. Locations between 12KB and 1MB are cached 
 // (up to a limit) when they're freed by the client.
 struct HugeBin; // Forward declaration.
 
+#pragma pack(push)
+#pragma pack(1)
 struct HugeLocation : public ListNode {
     void* Address; // The address of the object (aligned to 16KB).
     HugeBin* Bin;  // The bin to which this location belongs.
@@ -78,7 +78,7 @@ struct HugeLocation : public ListNode {
 
 // Contains the cached huge locations.
 struct HugeBin {
-    Stack<HugeLocation*> Cache;
+    //Stack<HugeLocation*> Cache;
     unsigned int CacheSize;
     unsigned int CacheTime;
     unsigned int MaxCacheSize;
@@ -86,15 +86,15 @@ struct HugeBin {
     unsigned int CacheFullHits;
     
      // Align to cache line.
-    char Padding[Constants::CACHE_LINE_SIZE - 
-                 sizeof(Stack<HugeLocation*>) - (5 * sizeof(int))];
+    //char Padding[Constants::CACHE_LINE_SIZE - 
+    //             sizeof(Stack<HugeLocation*>) - (5 * sizeof(int))];
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void IncreaseCacheSize() {
         // Increase the size of the cache if the demand is very high.
         if(Atomic::Increment((unsigned int*)&CacheFullHits) % 4 == 0) {
-            CacheSize = std::min(CacheSize + 1, ExtendedCacheSize);
-            Cache.SetMaxObjects(CacheSize);
+            //CacheSize = std::min(CacheSize + 1, ExtendedCacheSize);
+            //Cache.SetMaxObjects(CacheSize);
         }
     }
 
@@ -102,12 +102,12 @@ struct HugeBin {
     void DecreaseCacheSize() {
         // NOT ATOMIC!!!
         if(CacheSize > MaxCacheSize) {
-            CacheSize = std::max(MaxCacheSize, (CacheSize + MaxCacheSize) / 2);
-            Cache.SetMaxObjects(CacheSize);
+            //CacheSize = std::max(MaxCacheSize, (CacheSize + MaxCacheSize) / 2);
+            //Cache.SetMaxObjects(CacheSize);
         }
     }   
 };
-#pragma pop()
+#pragma pack(pop)
 
 } // namespace Base
 #endif

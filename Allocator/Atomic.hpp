@@ -51,7 +51,7 @@
     extern "C" __int64 _InterlockedExchangeAdd64(__int64 volatile* , __int64);
     extern "C" long _InterlockedCompareExchange (long volatile* , long, long);
     extern "C" __int64 _InterlockedCompareExchange64(__int64 volatile* , __int64, __int64);
-    extern "C" __int64 _InterlockedCompareExchange128(__int64 volatile* ,__int64, __int64, __int64*);
+    extern "C" unsigned char _InterlockedCompareExchange128(__int64 volatile* ,__int64, __int64, __int64*);
     extern "C" long _InterlockedIncrement(long volatile*);
     extern "C" __int64 _InterlockedIncrement64(__int64 volatile*);
     extern "C" long _InterlockedOr(long volatile* , long);
@@ -78,7 +78,7 @@
     #pragma intrinsic(_InterlockedDecrement, _InterlockedDecrement16, _InterlockedDecrement64)
     #pragma intrinsic(_InterlockedAnd, _InterlockedAnd8, _InterlockedAnd16, _InterlockedAnd64)
     #pragma intrinsic(_InterlockedOr, _InterlockedOr8, _InterlockedOr16, _InterlockedOr64)
-    #pragma intrinsic(_InterlockedXor, _InterlockedXor8, _InterlockedXor16, _InterlockedXor64)*/
+    #pragma intrinsic(_InterlockedXor, _InterlockedXor8, _InterlockedXor16, _InterlockedXor64)
 #else
     static_assert(false, "Not yet implemented.");
 #endif

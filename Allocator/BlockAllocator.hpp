@@ -51,6 +51,7 @@
     static_assert(false, "Not yet implemented.");
 #endif
 
+namespace Base {
 
 // Small and medium groups are allocated in blocks (1MB) that contain a maximum
 // of 64 groups (limited by the 64-bit bitmap used to keep track of used blocks).
@@ -71,7 +72,9 @@ private:
         void* RealAddress;            // The address of the first byte of the block.
         unsigned __int64 GroupBitmap; // Keeps track of used groups.
         unsigned __int64 FullBitmap;  // The bitmap when the block is full (no group is used).
+#if defined(PLATFORM_WINDOWS)
         HugeLocation* HugeParent;     // The associated huge location (only under Windows).
+#endif
         unsigned int FreeGroups;      // The number of free groups in the block.
         unsigned int NumaNode;        // Only for NUMA.
 
@@ -277,7 +280,7 @@ public:
 
         // Try to get the group from the list of partially used groups.
         // If it fails, get a unused group.
-        auto groupObject = partialFreeGroups_[bin->Number].RemoveFirst();
+        void* groupObject = partialFreeGroups_[bin->Number].RemoveFirst();
         auto group = reinterpret_cast<GroupType*>(groupObject);
 
         if(group != nullptr) {
@@ -288,9 +291,9 @@ public:
         }
 
         // The partial list had no group available, try to get one from the full list.
-        if(fullBlockList_.Count > 0) {
+        if(fullBlockList_.Count() > 0) {
             // Get a group from the first block with unused groups.
-            auto descriptor = static_cast<BlockDescriptor*>(fullBlockList_.First);
+            auto descriptor = static_cast<BlockDescriptor*>(fullBlockList_.First());
             group = GetGroupFromBlock(descriptor, isEmpty);
         
             if(isEmpty) {
@@ -396,7 +399,7 @@ public:
                     // a group before we acquired the manager lock and only if 
                     // enough blocks remain in the cache.
                     if((block->GroupBitmap == Empty::Mask) &&
-                       ((fullBlockList_.Count + emptyBlockList_.Count) > CacheSize)) {
+                       ((fullBlockList_.Count() + emptyBlockList_.Count()) > CacheSize)) {
                         // Return the block to the OS.
                         fullBlockList_.Remove(block);
                         DeallocateBlock<MemoryPolicy>(block);
@@ -494,7 +497,9 @@ public:
         block->FreeGroups = groups;
         block->RealAddress = address;
         block->StartAddress = address;
+#if defined(PLATFORM_WINDOWS)
         block->HugeParent = reinterpret_cast<HugeLocation*>(parent);
+#endif
 
         // Will be automatically released by the destructor.
         SpinLock managerLock(&lock_);
@@ -524,4 +529,5 @@ public:
     }
 };
 
+} // namespace Base
 #endif

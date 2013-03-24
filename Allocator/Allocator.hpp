@@ -285,8 +285,6 @@ public:
         // Initialize the bins.
         for(unsigned int i = 0; i < Constants::SMALL_BINS; i++) {
             SmallBin* bin = &context->SmallBins[i];
-
-            bin->Count = 0;
             bin->Number = i;
             bin->ReturnAllowed = 1;
             bin->PublicGroup = nullptr;
@@ -301,8 +299,6 @@ public:
 
         for(unsigned int i = 0; i < Constants::LARGE_BINS; i++) {
             LargeBin* bin = &context->LargeBins[i];
-
-            bin->Count = 0;
             bin->Number = i;
             bin->ReturnAllowed = 1;
             bin->PublicGroup = nullptr;
@@ -336,13 +332,13 @@ public:
     template <class GroupType, class BinType>
     void MakeGroupActive(BinType* bin, GroupType* group) {
         // Bring the group to the front of the list.
-        unsigned int prev = bin->Count;
-        GroupType* activeGroup = static_cast<GroupType*>(bin->First);
+        unsigned int prev = bin->Count();
+        GroupType* activeGroup = static_cast<GroupType*>(bin->First());
 
         bin->RemoveFirst();
         bin->AddLast(activeGroup);
 
-        if(bin->First != group) {
+        if(bin->First() != group) {
             // The group is not the first in the list yet.
             bin->Remove(group);
             bin->AddFirst(group);
@@ -492,7 +488,8 @@ public:
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     bool IsLargeLocation(void* address, void* aligned) {
-        return LargeTraits::PolicyType::GetType(reinterpret_cast<LargeTraits::NodeType*>(aligned));
+        return LargeTraits::PolicyType::
+            GetType(reinterpret_cast<LargeTraits::NodeType*>(aligned)) != 0;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -659,7 +656,7 @@ public:
         // The object is small enough so it will be allocated from a group.
         // Allocate the object from the corresponding bin.
         GS::BinType* bin = GS::GetBin(context, allocInfo.Bin);
-        GS::GroupType* activeGroup = static_cast<GS::GroupType*>(bin->First);
+        GS::GroupType* activeGroup = static_cast<GS::GroupType*>(bin->First());
         void* address = nullptr;
 
         // 1. Take from the active group.
@@ -674,8 +671,8 @@ public:
         // 2. An active bin doesn't exist, or it is full.
         // We see if the next group has free locations. If it does not,
         // it is guaranteed that all the other groups don't have free locations too.
-        if(bin->Count >= 2) {
-            auto groupObject = GS::BinType::Policy::GetNext(bin->First);
+        if(bin->Count() >= 2) {
+            auto groupObject = GS::BinType::Policy::GetNext(bin->First());
             activeGroup = static_cast<GS::GroupType*>(groupObject);
 
             if(activeGroup->IsEmptyEnough()) {
@@ -700,7 +697,7 @@ public:
             bin->PublicGroup = static_cast<GS::GroupType*>(activeGroup->NextPublic);
             binLock.Unlock(); // The lock can be released now.
             
-            if(activeGroup != bin->First) {
+            if(activeGroup != bin->First()) {
                 // Bring the group to the front of the bin.
                 MakeGroupActive(bin, activeGroup);
             }
@@ -731,8 +728,8 @@ public:
         unsigned int locations = (GS::GroupSize - GS::HeaderSize) / allocInfo.Size;
         GS::BAType* manager = GS::GetBA(this, context->NumaNode);
 
-        groupObject = manager->GetGroup<MemoryPolicy>(allocInfo.Size, locations, 
-                                                      bin, context->ThreadId);
+        auto groupObject = manager->GetGroup<MemoryPolicy>(allocInfo.Size, locations, 
+                                                           bin, context->ThreadId);
         activeGroup = static_cast<GS::GroupType*>(groupObject);
 
         if(activeGroup == nullptr) {
@@ -806,7 +803,7 @@ public:
         // needs to be completely empty and// at least 'ReturnAllowed'
         // allowed groups should remain in the bin.
         return group->IsFull() &&
-               (bin->Count > (bin->ReturnAllowed - 1));
+               (bin->Count() > (bin->ReturnAllowed - 1));
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -822,7 +819,7 @@ public:
         // groups should remain in the bin.
         return Selector<Manager>::CanReturnPartial(bin) && 
                group->ShouldReturn() &&
-               (bin->Count > (bin->ReturnAllowed - 1));
+               (bin->Count() > (bin->ReturnAllowed - 1));
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -920,7 +917,7 @@ public:
 
         // The last group can be removed only once. This prevents situations
         // when a group would be repeatedly linked and unlinked from the bin.
-        if(bin->Count == (bin->ReturnAllowed - 1)) {
+        if(bin->Count() == (bin->ReturnAllowed - 1)) {
             bin->ReturnAllowed++;
         }
     }
@@ -962,7 +959,7 @@ public:
         typedef typename Selector<Manager> GS; // Group context.
         GS::BinType* bin = reinterpret_cast<GS::BinType*>(group->ParentBin);
 
-        if(*(volatile uintptr_t*)&group->ParentBin != nullptr) {
+        if(*(volatile uintptr_t*)&group->ParentBin != 0) {
             // The group is owned by a thread, get the associated context.
             ThreadContext* context = GetCurrentContext();
 
@@ -976,10 +973,10 @@ public:
                     ReturnUnusedGroup<Manager>(group, bin, context);				
                     return;
                 }
-                else if(group != bin->First) { 
+                else if(group != bin->First()) { 
                     // We don't touch the active group if it's not empty.
                     // There are at least 2 groups in the bin.
-                    if(group != bin->First->Next) {
+                    if(group != bin->First()->Next) {
                         // Bring the group to the second position (the first position
                         // is always used by the active group). This guarantees that 
                         // if the second group has no free locations, all the other 
@@ -987,7 +984,7 @@ public:
                         Statistics::BroughtToFront();
 
                         bin->Remove(group);
-                        bin->AddAfter(bin->First, group);
+                        bin->AddAfter(bin->First(), group);
                         return;
                     }
                 }
@@ -1074,27 +1071,27 @@ public:
         for(unsigned int candidate = Constants::HUGE_START; 
             candidate < Constants::HUGE_BINS; candidate++) {
             // Does the bin have any locations?
-            unsigned int lastTime = hugeBins_[candidate].Cache.GetOldestTime();
-            unsigned int timeDiff = currentTime - lastTime;
-            unsigned int count = hugeBins_[candidate].Cache.GetCount();
+            //unsigned int lastTime = hugeBins_[candidate].Cache.GetOldestTime();
+            //unsigned int timeDiff = currentTime - lastTime;
+            //unsigned int count = hugeBins_[candidate].Cache.GetCount();
 
-            if((count > 0) && (timeDiff > hugeBins_[candidate].CacheTime)) {
-                // This bin has some old and unused locations; 
-                // half of them will be removed. Remove at least one location.
-                unsigned int count = std::max(1, count / 2);
+            //if((count > 0) && (timeDiff > hugeBins_[candidate].CacheTime)) {
+            //    // This bin has some old and unused locations; 
+            //    // half of them will be removed. Remove at least one location.
+            //    unsigned int count = std::max(1, count / 2);
 
-                for(unsigned int j = 0; j < count; j++) {
-                    HugeLocation* location = hugeBins_[candidate].Cache.Pop();
-                    
-                    if(location == nullptr) {
-                        break; // No more locations in the stack.
-                    }
+            //    for(unsigned int j = 0; j < count; j++) {
+            //        HugeLocation* location = hugeBins_[candidate].Cache.Pop();
+            //        
+            //        if(location == nullptr) {
+            //            break; // No more locations in the stack.
+            //        }
 
-                    RemoveHugeLocation(location, context);
-                }
+            //        RemoveHugeLocation(location, context);
+            //    }
 
-                hugeBins_[candidate].DecreaseCacheSize();
-            }
+            //    hugeBins_[candidate].DecreaseCacheSize();
+            //}
         }
     }
 
@@ -1236,15 +1233,15 @@ public:
             InitializeHugeLocationEx(temp, bin, size, false, parent, nullptr);
             parent->AddRef(); // Optimistically increase the reference count.
             
-            temp = hugeBins_[bin].Cache.Push(temp);
+            //temp = hugeBins_[bin].Cache.Push(temp);
 
-            if(temp != nullptr) {
-                // The cache is full, treat the unused memory as small groups.
-                parent->Release(); // The counter needs to be decremented.
-                asGroup = UnusedAsGroups(address, start, end, bin, size,
-                                         false /*addRef*/, context);
-                break;
-            }
+            //if(temp != nullptr) {
+            //    // The cache is full, treat the unused memory as small groups.
+            //    parent->Release(); // The counter needs to be decremented.
+            //    asGroup = UnusedAsGroups(address, start, end, bin, size,
+            //                             false /*addRef*/, context);
+            //    break;
+            //}
 
             start += size; // Advance to next position.
         }
@@ -1278,12 +1275,13 @@ public:
             startBin++;
         }
 
-        void* address = hugeBins_[startBin].Cache.Pop();
+        void* address = nullptr;
+        /*void* address = hugeBins_[startBin].Cache.Pop();
 
         if(address != nullptr) {
             return HugeToClient(address);
         }
-
+*/
         // The demand for this size may be very high, 
         // try to increase the cache.
         hugeBins_[startBin].IncreaseCacheSize();
@@ -1346,12 +1344,13 @@ public:
         HugeBin* bin = location->Bin;
 
         // Try to add the location to the cache.
-        location = bin->Cache.Push(location);
-        if(location != nullptr) {
-            // The cache is full and the location is no longer needed.
-            ThreadContext* context = GetCurrentContext();
-            RemoveHugeLocation(location, context);
-        }
+        //location = bin->Cache.Push(location);
+
+        //if(location != nullptr) {
+        //    // The cache is full and the location is no longer needed.
+        //    ThreadContext* context = GetCurrentContext();
+        //    RemoveHugeLocation(location, context);
+        //}
     }
 
 
@@ -1391,7 +1390,7 @@ public:
             hugeBins_[i].CacheTime = Constants::HugeCacheTime[i];
             hugeBins_[i].MaxCacheSize = hugeBins_[i].CacheSize;
             hugeBins_[i].ExtendedCacheSize = hugeBins_[i].MaxCacheSize*  8;
-            hugeBins_[i].Cache.SetMaxObjects(Constants::HugeCacheSize[i]);
+            //hugeBins_[i].Cache.SetMaxObjects(Constants::HugeCacheSize[i]);
         }
     }
 
@@ -1425,8 +1424,8 @@ public:
         }
 
         // Determine the group to which this location belongs.
-        void* alignedAddress = (void*)((uintptr_t)address&  
-                                ~(Constants::SMALL_GROUP_SIZE - 1));
+        void* alignedAddress = (void*)((uintptr_t)address &  
+                                ~((uintptr_t)Constants::SMALL_GROUP_SIZE - 1));
 
         if(!IsHugeLocation(address, alignedAddress)) {
             if(!IsLargeLocation(address, alignedAddress)) {
@@ -1442,7 +1441,7 @@ public:
                 auto castedGroup = reinterpret_cast<LargeTraits::NodeType*>(group);
                 unsigned int subgroup = LargeTraits::PolicyType::GetSubgroup(castedGroup);
 
-                unsigned int subgroupOffset = (subgroup*  Constants::SMALL_GROUP_SIZE);
+                unsigned int subgroupOffset = (subgroup * Constants::SMALL_GROUP_SIZE);
                 group = reinterpret_cast<LargeGroup*>((uintptr_t)group - subgroupOffset);
                 Deallocate<LargeBAType>(address, group);
             }

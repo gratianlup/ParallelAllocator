@@ -30,8 +30,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef LIST_HEAD_H
-#define LIST_HEAD_H
+#ifndef LIST_HEAD_HPP
+#define LIST_HEAD_HPP
+
+namespace Base {
 
 /**
 ** Describes a list of public locations (used when freeing public locations).
@@ -53,15 +55,11 @@ public:
     ListHead() {}
 
     ListHead(unsigned __int64 value) {
-        *((unsigned __int64*)&Count) = value;
+        *((unsigned __int64*)this) = value;
     }
 
     ListHead(const ListHead<T>& other) {
-        *((unsigned __int64*)&Count) = *((unsigned __int64*)&other.Count);
-    }
-
-    ListHead(const volatile ListHead<T>& other) {
-        *((unsigned __int64*)&Count) = *((unsigned __int64*)&other.Count);
+        *((unsigned __int64*)this) = *((unsigned __int64*)&other);
     }
 
     ListHead(int count, void* first) : Count(count), First((PtrType)first) { }
@@ -182,4 +180,5 @@ public:
     }
 };
 
+} // namespace Base
 #endif

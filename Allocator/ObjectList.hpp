@@ -182,10 +182,11 @@ struct LargeNodePolicy32 {
 #pragma pack(1)
 template <class NodeType = ListNode, class NodePolicy = DefaultNodePolicy>
 class ObjectList {
-protected:
+public:
     typedef typename NodePolicy Policy;
     typedef typename NodeType Node;
 
+protected:
     NodeType* first_;
     NodeType* last_;
     unsigned int count_;
@@ -318,10 +319,6 @@ public:
         else NodePolicy::SetPrevious(nodeNext, nodePrevious);
 
         count_--;
-    }
-
-    int Count() {
-        return count_;
     }
 };
 #pragma pack(pop)

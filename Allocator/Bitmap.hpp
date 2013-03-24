@@ -37,6 +37,14 @@
 
 #if defined(PLATFORM_WINDOWS)
     #include <intrin.h>
+
+    #if defined(PLATFORM_32)
+        #pragma intrinsic(_BitScanForward)
+        #pragma intrinsic(_BitScanReverse)
+    #else
+        #pragma intrinsic(_BitScanForward64)
+        #pragma intrinsic(_BitScanReverse64)
+    #endif
 #else
     static_assert(false, "Not yet implemented.");
 #endif
@@ -58,7 +66,7 @@ public:
             return index;
         }
 
-        return -1; // Not found.
+        return UINT_MAX; // Not found.
 #else
         static_assert(false, "Not yet implemented.");
 #endif
@@ -87,13 +95,13 @@ public:
     #endif
 #else
     #if defined(PLATFORM_WINDOWS)
-        unsigned int index;
+        unsigned long index;
 
         if(_BitScanReverse64(&index, mask))	{
-            return index;
+            return (unsigned int)index;
         }
 
-        return -1; // Not found.
+        return UINT_MAX; // Not found.
     #else
         static_assert(false, "Not yet implemented.");
     #endif
@@ -111,7 +119,7 @@ public:
             return index;
         }
 
-        return -1; // Not found.
+        return UINT_MAX; // Not found.
 #else
         static_assert(false, "Not yet implemented.");
 #endif
@@ -134,19 +142,19 @@ public:
             return index + 32;
         }
 
-        return -1; // Not found.
+        return ULLONG_MAX; // Not found.
     #else
         static_assert(false, "Not yet implemented.");
     #endif
 #else
     #if defined(PLATFORM_WINDOWS)
-        unsigned int index;
+        unsigned long index;
 
-        if(_BitScanReverse64(&index, mask)) {
-            return index;
+        if(_BitScanForward64(&index, mask)) {
+            return (unsigned int)index;
         }
 
-        return -1; // Not found.
+        return UINT_MAX; // Not found.
     #else
         static_assert(false, "Not yet implemented.");
     #endif
@@ -160,6 +168,7 @@ public:
 #if defined(PLATFORM_32)
     #if defined(PLATFORM_WINDOWS)
         unsigned int index;
+
         if(start < 32) {
             // Only the first 32 bits need to be checked.
             int data = *((unsigned int*)&mask) & ((1 << start) - 1);
@@ -189,12 +198,13 @@ public:
     #if defined(PLATFORM_WINDOWS)
         // On 64 bit we can check the bits using a single operation.
         unsigned __int64 dataMask = (start < 64) ? ~(-1 - ((1ULL << start) - 1)) : -1;
+        unsigned int index;
 
-        if(_BitScanForward64((unsigned long*)&index, mask & dataMask)) {
+        if(_BitScanReverse64((unsigned long*)&index, mask & dataMask)) {
             return index; // Found!
         }
 
-        return -1; // Not found.
+        return UINT_MAX; // Not found.
     #else
         static_assert(false, "Not yet implemented.");
     #endif
@@ -230,7 +240,7 @@ public:
             }
         }
 
-        return -1; // Not found.		
+        return UINT_MAX; // Not found.		
     #else
         static_assert(false, "Not yet implemented.");
     #endif
@@ -238,12 +248,13 @@ public:
     #if defined(PLATFORM_WINDOWS)
         // On 64 bit we can check the bits using a single operation.
         unsigned __int64 data = mask & ~((1ULL << start) - 1);
+        unsigned long index;
 
         if(_BitScanForward64((unsigned long*)&index, data)) {
-            return index; // Found!
+            return (unsigned int)index; // Found!
         }
 
-        return -1; // Not found.
+        return UINT_MAX; // Not found.
     #else
         static_assert(false, "Not yet implemented.");
     #endif
@@ -257,7 +268,7 @@ public:
     }
 
     static void SetBit(unsigned __int64& mask, unsigned int index) {
-        mask |= 1 << index;
+        mask |= 1ULL << index;
     }
     
     static bool IsBitSet(unsigned int& mask, unsigned int index) {

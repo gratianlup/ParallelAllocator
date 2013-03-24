@@ -52,14 +52,12 @@ class BitSpinLock {
 public:
     // Implements the atomic operations, based on the integer type.
     template<class Type> // Gives a compiler error if an invalid type is used.
-    struct AtomicSelector;
-
-    template <>
-    struct AtomicSelector<unsigned short> {
-        static short CompareExchange(volatile unsigned short* location, 
-                                     unsigned short value, 
-                                     unsigned short comparand) {
-            return Atomic::CompareExchange16(location, value, comparand);
+    struct AtomicSelector {
+        static unsigned int CompareExchange(volatile unsigned int* location, 
+                                            unsigned int value, 
+                                            unsigned int comparand)	{
+            static_assert(false, "No version of CompareExchange selected!");
+            return 0;
         }
     };
 

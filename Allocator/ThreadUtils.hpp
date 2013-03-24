@@ -71,7 +71,7 @@ public:
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    static unsigned int GetCurrentThreadId()	{
+    static unsigned int GetCurrentThreadId() {
 #if defined(PLATFORM_WINDOWS)
         return (unsigned int)::GetCurrentThreadId();
 #else
@@ -95,12 +95,16 @@ public:
         // Get the processor ID using APIC.
         // http://software.intel.com/en-us/articles/intel-64-architecture-processor-topology-enumeration/
 #if defined(PLATFORM_WINDOWS)
+    #ifdef PLATFORM_#@
         __asm {
             mov eax, 1
             cpuid
             shr ebx, 24
             mov eax, ebx
         }
+    #else
+        return 0;
+    #endif
 #else
         static_assert(false, "Not yet implemented.");
 #endif
@@ -188,6 +192,7 @@ public:
     #else
             static_assert(false, "Not yet implemented.");
     #endif
+        }
 #else
     #if defined(PLATFORM_WINDOWS)
         _mm_pause();
@@ -239,7 +244,7 @@ public:
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     inline static bool SetThreadLowPriority(void* threadHandle) {
 #if defined(PLATFORM_WINDOWS)
-        return SetThreadPriority((HANDLE)threadHandle, THREAD_PRIORITY_BELOW_NORMAL);
+        return SetThreadPriority((HANDLE)threadHandle, THREAD_PRIORITY_BELOW_NORMAL) != 0;
 #else
         static_assert(false, "Not yet implemented.");
 #endif`

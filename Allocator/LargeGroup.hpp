@@ -145,16 +145,9 @@ private:
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     void Reset() {
-#ifdef PLATFORM_32
-        // Reset 4 bytes at a time under 32-bit.
-        UnrolledSet<unsigned int, 0, 0, 
-                    HEADER_SIZE / sizeof(unsigned int)>::Execute(this);
-#else
-        // Reset 16 bytes at a time under 64-bit (uses SSE2).
-        __m128i val;
-        val.m128i_i64[0] = val.m128i_i64[1] = 0;
-        UnrolledSet128<HEADER_SIZE / sizeof(__m128i)>::Execute(this, val);
-#endif
+        // Reset 4 bytes at a time.
+        UnrolledSet<int, 0, 0, 
+                    HEADER_SIZE / sizeof(int)>::Execute((int*)this);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -314,5 +307,5 @@ public:
     }
 };
 
-// namespace Base
+} // namespace Base
 #endif
