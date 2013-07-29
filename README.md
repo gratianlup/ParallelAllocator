@@ -4,8 +4,7 @@ Parallel Allocator
 A memory allocator optimized for high concurrency and low memory consumption on modern multi-core and multi-processor systems.  
 It includes special support for NUMA systems (allocating memory from the nearest NUMA node, for example).
 
-It is about 50% faster than the allocator included with Microsoft Visual C++ and uses less than half the memory for small objects  
-(< 256 bytes), leading to better cache utilization; this also makes it ideal for applications that allocate a huge number of small objects.  
+It is about 50% faster than the allocator included with Microsoft Visual C++ and uses less than half the memory for small objects (< 256 bytes), leading to better cache utilization; this also makes it ideal for applications that allocate a huge number of small objects.  
 In many tests it is about 10% faster than the allocator included with Intel Thread Building Blocks.  
 
 It is implemented in C++ with a small amount of x86 Assembly and was recently converted to C++11.  
