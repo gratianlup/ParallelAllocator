@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Parallel Allocator : A memory allocator optimized for high concurrency and low memory consumption." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Parallel Allocator</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/gratianlup/ParallelAllocator">View on GitHub</a>
+
+          <h1 id="project_title">Parallel Allocator</h1>
+          <h2 id="project_tagline">A memory allocator optimized for high concurrency and low memory consumption.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/gratianlup/ParallelAllocator/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/gratianlup/ParallelAllocator/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>A memory allocator optimized for high concurrency and low memory consumption on modern multi-core and multi-processor systems. It includes special support for NUMA systems (allocating memory from the nearest NUMA node, for example).</p>
+
+<p>It is about 50% faster than the allocator included with Microsoft Visual C++ and uses less than half the memory for small objects (&lt; 256 bytes), leading to better cache utilization; this also makes it ideal for applications that allocate a huge number of small objects.<br>
+In many tests it is about 10% faster than the allocator included with Intel Thread Building Blocks.  </p>
+
+<p>It is implemented in C++ with a small amount of x86 Assembly and was recently converted to C++11.<br>
+Access to low-level synchronization and bit-manipulation instructions is done through compiler intrinsics.  </p>
+
+<h3>
+<a name="performance" class="anchor" href="#performance"><span class="octicon octicon-link"></span></a>Performance:</h3>
+
+<p><img src="http://www.gratianlup.com/documents/allocator_graph1.PNG" alt="Allocator screenshot"></p>
+
+<p><img src="http://www.gratianlup.com/documents/allocator_graph2.PNG" alt="Allocator screenshot"></p>
+
+<p>The tests were done on a quad-core Intel Core i7 CPU under Windows 8. Because the CRT ultimately calls <em>HeapAlloc</em>, the version<br>
+of Windows used is very important, the test application using the CRT allocator running <em>much</em> slower under Windows XP, which doesn't implement the <em>Low Fragmentation Heap</em> introduced with Windows 7.</p>
+
+<h3>
+<a name="architecture-overview" class="anchor" href="#architecture-overview"><span class="octicon octicon-link"></span></a>Architecture overview:</h3>
+
+<p>The architecture and the implementation details are described in the following document:<br><strong><a href="http://www.gratianlup.com/documents/parallel_allocator.pdf">Download architecture and implementation details (PDF)</a></strong>  </p>
+
+<p><img src="http://www.gratianlup.com/documents/allocator_summary.png" alt="Allocator screenshot"></p>
+
+<h3>
+<a name="implementation-details" class="anchor" href="#implementation-details"><span class="octicon octicon-link"></span></a>Implementation details</h3>
+
+<p>The following documents present more implementation details:<br><strong><a href="http://www.gratianlup.com/documents/allocator.pdf">Download internal data structures details (PDF)</a></strong><br><strong><a href="http://www.gratianlup.com/documents/allocator_bins.pdf">Download bin location size details (PDF)</a></strong>  </p>
+
+<p><img src="http://www.gratianlup.com/documents/allocator.png" alt="Allocator screenshot"></p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Parallel Allocator maintained by <a href="https://github.com/gratianlup">gratianlup</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
